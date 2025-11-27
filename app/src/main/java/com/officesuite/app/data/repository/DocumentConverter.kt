@@ -17,9 +17,12 @@ import com.itextpdf.io.image.ImageDataFactory
 import com.itextpdf.kernel.pdf.PdfWriter
 import com.itextpdf.kernel.pdf.PdfDocument as ITextPdfDocument
 import com.itextpdf.kernel.geom.PageSize
+import com.itextpdf.kernel.colors.ColorConstants
+import com.itextpdf.kernel.colors.DeviceRgb
 import com.itextpdf.layout.Document
 import com.itextpdf.layout.element.Image
 import com.itextpdf.layout.element.Paragraph
+import com.itextpdf.layout.properties.TextAlignment
 import com.itextpdf.kernel.font.PdfFontFactory
 import com.itextpdf.io.font.constants.StandardFonts
 import kotlinx.coroutines.Dispatchers
@@ -233,7 +236,7 @@ class DocumentConverter(private val context: Context) {
                                     val r = Integer.parseInt(colorStr.substring(0, 2), 16)
                                     val g = Integer.parseInt(colorStr.substring(2, 4), 16)
                                     val b = Integer.parseInt(colorStr.substring(4, 6), 16)
-                                    textElement.setFontColor(com.itextpdf.kernel.colors.DeviceRgb(r, g, b))
+                                    textElement.setFontColor(DeviceRgb(r, g, b))
                                 } catch (e: Exception) {
                                     // Ignore color parsing errors
                                 }
@@ -246,14 +249,14 @@ class DocumentConverter(private val context: Context) {
                     // Handle paragraph alignment
                     when (paragraph.alignment) {
                         org.apache.poi.xwpf.usermodel.ParagraphAlignment.CENTER -> 
-                            iTextParagraph.setTextAlignment(com.itextpdf.layout.properties.TextAlignment.CENTER)
+                            iTextParagraph.setTextAlignment(TextAlignment.CENTER)
                         org.apache.poi.xwpf.usermodel.ParagraphAlignment.RIGHT ->
-                            iTextParagraph.setTextAlignment(com.itextpdf.layout.properties.TextAlignment.RIGHT)
+                            iTextParagraph.setTextAlignment(TextAlignment.RIGHT)
                         org.apache.poi.xwpf.usermodel.ParagraphAlignment.BOTH,
                         org.apache.poi.xwpf.usermodel.ParagraphAlignment.DISTRIBUTE ->
-                            iTextParagraph.setTextAlignment(com.itextpdf.layout.properties.TextAlignment.JUSTIFIED)
+                            iTextParagraph.setTextAlignment(TextAlignment.JUSTIFIED)
                         else ->
-                            iTextParagraph.setTextAlignment(com.itextpdf.layout.properties.TextAlignment.LEFT)
+                            iTextParagraph.setTextAlignment(TextAlignment.LEFT)
                     }
                     
                     iTextParagraph.setMarginBottom(6f)
@@ -283,7 +286,7 @@ class DocumentConverter(private val context: Context) {
                                 .add(cellParagraph)
                             
                             if (isFirstRow) {
-                                iTextCell.setBackgroundColor(com.itextpdf.kernel.colors.ColorConstants.LIGHT_GRAY)
+                                iTextCell.setBackgroundColor(ColorConstants.LIGHT_GRAY)
                                 cellParagraph.setFont(boldFont)
                             }
                             
@@ -581,7 +584,7 @@ class DocumentConverter(private val context: Context) {
                             val textParagraph = Paragraph(block.text)
                                 .setFont(font)
                                 .setFontSize(1f) // Very small font
-                                .setFontColor(com.itextpdf.kernel.colors.ColorConstants.WHITE, 0f) // Transparent
+                                .setFontColor(ColorConstants.WHITE, 0f) // Transparent
                                 .setFixedPosition(index + 1, x, y, (box.right - box.left).toFloat())
                             
                             document.add(textParagraph)

@@ -139,7 +139,7 @@ class SlideAdapter(
         
         for (shape in slide.shapes) {
             if (shape is XSLFTextShape) {
-                val text = shape.text
+                val text = shape.text ?: continue
                 if (text.isNotBlank()) {
                     hasContent = true
                     
