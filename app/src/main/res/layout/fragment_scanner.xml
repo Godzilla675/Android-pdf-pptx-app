@@ -17,6 +17,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- Border Overlay View for auto border detection -->
+    <com.officesuite.app.ui.scanner.BorderOverlayView
+        android:id="@+id/borderOverlay"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/controlsLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <!-- Image Preview (after capture) -->
     <ImageView
         android:id="@+id/imagePreview"
@@ -43,6 +53,21 @@
         android:textColor="@color/white"
         android:textSize="12sp"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Auto Border Toggle Badge -->
+    <TextView
+        android:id="@+id/textAutoBorderStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:background="@drawable/bg_rounded"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="4dp"
+        android:text="Auto Border: ON"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toStartOf="@id/imagePreview"
         app:layout_constraintTop_toTopOf="parent" />
 
     <!-- OCR Result -->

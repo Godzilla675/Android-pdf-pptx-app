@@ -10,11 +10,23 @@ import android.os.ParcelFileDescriptor
 import com.officesuite.app.data.model.ConversionOptions
 import com.officesuite.app.data.model.ConversionResult
 import com.officesuite.app.data.model.DocumentType
+import com.officesuite.app.ocr.OcrManager
+import com.officesuite.app.ocr.OcrResult
 import com.officesuite.app.utils.FileUtils
+import com.itextpdf.io.image.ImageDataFactory
+import com.itextpdf.kernel.pdf.PdfWriter
+import com.itextpdf.kernel.pdf.PdfDocument as ITextPdfDocument
+import com.itextpdf.kernel.geom.PageSize
+import com.itextpdf.layout.Document
+import com.itextpdf.layout.element.Image
+import com.itextpdf.layout.element.Paragraph
+import com.itextpdf.kernel.font.PdfFontFactory
+import com.itextpdf.io.font.constants.StandardFonts
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.apache.poi.xslf.usermodel.XMLSlideShow
 import org.apache.poi.xwpf.usermodel.XWPFDocument
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -358,6 +370,10 @@ class DocumentConverter(private val context: Context) {
         return if (lines.isEmpty()) listOf("") else lines
     }
 
+    /**
+     * Creates a PDF from scanned bitmaps without OCR.
+     * For searchable PDFs with selectable text, use createSearchablePdfFromBitmaps instead.
+     */
     fun createPdfFromBitmaps(bitmaps: List<Bitmap>, outputFile: File): Boolean {
         return try {
             val pdfDocument = PdfDocument()
@@ -380,6 +396,104 @@ class DocumentConverter(private val context: Context) {
             
             pdfDocument.close()
             true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
+    }
+
+    /**
+     * Creates a searchable PDF from scanned bitmaps with embedded OCR text.
+     * The text is rendered invisibly behind the image, making the PDF text-selectable.
+     * 
+     * @param bitmaps List of scanned page images
+     * @param ocrResults List of OCR results corresponding to each bitmap
+     * @param outputFile The output PDF file
+     * @return true if successful, false otherwise
+     */
+    fun createSearchablePdfFromBitmaps(
+        bitmaps: List<Bitmap>,
+        ocrResults: List<OcrResult>,
+        outputFile: File
+    ): Boolean {
+        return try {
+            val pdfWriter = PdfWriter(outputFile)
+            val pdfDoc = ITextPdfDocument(pdfWriter)
+            val document = Document(pdfDoc)
+            
+            val font = PdfFontFactory.createFont(StandardFonts.HELVETICA)
+            
+            bitmaps.forEachIndexed { index, bitmap ->
+                // Convert bitmap to byte array
+                val stream = ByteArrayOutputStream()
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+                val imageBytes = stream.toByteArray()
+                
+                // Create page with image dimensions
+                val pageSize = PageSize(bitmap.width.toFloat(), bitmap.height.toFloat())
+                pdfDoc.addNewPage(pageSize)
+                
+                // Add image to page
+                val imageData = ImageDataFactory.create(imageBytes)
+                val image = Image(imageData)
+                image.setFixedPosition(index + 1, 0f, 0f)
+                image.scaleToFit(pageSize.width, pageSize.height)
+                document.add(image)
+                
+                // Add invisible OCR text layer if available
+                if (index < ocrResults.size && ocrResults[index].success) {
+                    val ocrResult = ocrResults[index]
+                    
+                    // Add text blocks at their detected positions
+                    for (block in ocrResult.blocks) {
+                        block.boundingBox?.let { box ->
+                            // Calculate position (PDF coordinates start from bottom-left)
+                            val x = box.left.toFloat()
+                            val y = bitmap.height - box.bottom.toFloat()
+                            
+                            // Create invisible text (very small, transparent)
+                            val textParagraph = Paragraph(block.text)
+                                .setFont(font)
+                                .setFontSize(1f) // Very small font
+                                .setFontColor(com.itextpdf.kernel.colors.ColorConstants.WHITE, 0f) // Transparent
+                                .setFixedPosition(index + 1, x, y, (box.right - box.left).toFloat())
+                            
+                            document.add(textParagraph)
+                        }
+                    }
+                }
+            }
+            
+            document.close()
+            true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
+    }
+
+    /**
+     * Creates a searchable PDF using OCR to extract and embed text.
+     * This is a convenience method that performs OCR internally.
+     * 
+     * @param bitmaps List of scanned page images
+     * @param outputFile The output PDF file
+     * @param ocrManager The OCR manager to use for text extraction
+     * @return true if successful, false otherwise
+     */
+    suspend fun createSearchablePdfWithOcr(
+        bitmaps: List<Bitmap>,
+        outputFile: File,
+        ocrManager: OcrManager
+    ): Boolean = withContext(Dispatchers.IO) {
+        try {
+            // Run OCR on all pages
+            val ocrResults = bitmaps.map { bitmap ->
+                ocrManager.extractText(bitmap)
+            }
+            
+            // Create searchable PDF with OCR results
+            createSearchablePdfFromBitmaps(bitmaps, ocrResults, outputFile)
         } catch (e: Exception) {
             e.printStackTrace()
             false
