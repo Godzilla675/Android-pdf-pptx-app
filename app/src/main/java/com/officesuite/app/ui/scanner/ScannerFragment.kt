@@ -441,11 +441,11 @@ class ScannerFragment : Fragment() {
                     binding.btnActionResult.visibility = View.VISIBLE
                 }
                 is ScanResult.Phone -> {
-                    binding.btnActionResult.text = "Call"
+                    binding.btnActionResult.text = getString(R.string.call)
                     binding.btnActionResult.visibility = View.VISIBLE
                 }
                 is ScanResult.Email -> {
-                    binding.btnActionResult.text = "Email"
+                    binding.btnActionResult.text = getString(R.string.email)
                     binding.btnActionResult.visibility = View.VISIBLE
                 }
                 else -> {
@@ -504,7 +504,7 @@ class ScannerFragment : Fragment() {
                 result.documentNumber?.let { appendLine("${getString(R.string.document_number)}: $it") }
                 result.expirationDateString?.let { appendLine("${getString(R.string.expiration_date)}: $it") }
                 result.nationality?.let { appendLine("${getString(R.string.nationality)}: $it") }
-                result.sex?.let { appendLine("Sex: $it") }
+                result.sex?.let { appendLine("${getString(R.string.sex)}: $it") }
             }
         )
         

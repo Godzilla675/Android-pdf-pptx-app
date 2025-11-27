@@ -3,6 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/action_comments"
+        android:icon="@drawable/ic_edit"
+        android:title="@string/comments"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/action_share"
         android:icon="@drawable/ic_share"
         android:title="@string/share"
@@ -12,6 +18,11 @@
         android:id="@+id/action_ocr"
         android:icon="@drawable/ic_text"
         android:title="@string/run_ocr"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_version_history"
+        android:title="@string/version_history"
+        app:showAsAction="never" />
 
 </menu>

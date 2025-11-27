@@ -87,6 +87,10 @@
     <string name="expiration_date">Expiration Date</string>
     <string name="document_number">Document Number</string>
     <string name="nationality">Nationality</string>
+    <string name="sex">Sex</string>
+    <string name="call">Call</string>
+    <string name="email">Email</string>
+    <string name="no_version_history">No version history available</string>
     
     <!-- Receipt Scanner -->
     <string name="scan_receipt">Scan Receipt</string>
