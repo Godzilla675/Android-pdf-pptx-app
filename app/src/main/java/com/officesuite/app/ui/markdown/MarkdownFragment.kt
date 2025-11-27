@@ -86,6 +86,8 @@ class MarkdownFragment : Fragment() {
         binding.toolbar.apply {
             setNavigationOnClickListener {
                 findNavController().navigateUp()
+                @Suppress("DEPRECATION")
+                requireActivity().onBackPressed()
             }
             inflateMenu(R.menu.menu_markdown)
             setOnMenuItemClickListener { item ->

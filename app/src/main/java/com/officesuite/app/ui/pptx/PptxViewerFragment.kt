@@ -1,5 +1,6 @@
 package com.officesuite.app.ui.pptx
 
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -14,6 +15,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
+import com.officesuite.app.MainActivity
+import androidx.recyclerview.widget.RecyclerView
 import com.officesuite.app.R
 import com.officesuite.app.databinding.FragmentPptxViewerBinding
 import com.officesuite.app.utils.ErrorHandler
@@ -24,9 +27,7 @@ import com.officesuite.app.utils.ShareUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.apache.poi.xslf.usermodel.XMLSlideShow
 import java.io.File
-import java.io.FileInputStream
 
 /**
  * Fragment for viewing PowerPoint (PPTX) presentations.
@@ -43,8 +44,9 @@ class PptxViewerFragment : Fragment() {
     
     private var fileUri: Uri? = null
     private var cachedFile: File? = null
-    private var slideImages = mutableListOf<Bitmap>()
+    private var slideAdapter: SlideAdapter? = null
     private var currentSlide = 0
+    private var totalSlides = 0
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -72,10 +74,26 @@ class PptxViewerFragment : Fragment() {
         binding.toolbar.apply {
             setNavigationOnClickListener {
                 findNavController().navigateUp()
+                @Suppress("DEPRECATION")
+                requireActivity().onBackPressed()
+                requireActivity().onBackPressedDispatcher.onBackPressed()
             }
             inflateMenu(R.menu.menu_pptx_viewer)
+            
+            // Hide PiP option if not supported
+            val mainActivity = activity as? MainActivity
+            menu.findItem(R.id.action_pip)?.isVisible = mainActivity?.isPipSupported() == true
+            
             setOnMenuItemClickListener { item ->
                 when (item.itemId) {
+                    R.id.action_pip -> {
+                        enterPipMode()
+                    R.id.action_slideshow -> {
+                        startSlideshow()
+                    R.id.action_edit -> {
+                        openEditor()
+                        true
+                    }
                     R.id.action_share -> {
                         shareDocument()
                         true
@@ -95,6 +113,18 @@ class PptxViewerFragment : Fragment() {
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
             val snapHelper = PagerSnapHelper()
             snapHelper.attachToRecyclerView(this)
+            
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+                    val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                    val firstVisiblePosition = layoutManager.findFirstVisibleItemPosition()
+                    if (firstVisiblePosition != RecyclerView.NO_POSITION && firstVisiblePosition != currentSlide) {
+                        currentSlide = firstVisiblePosition
+                        updateSlideInfo()
+                    }
+                }
+            })
         }
     }
 
@@ -121,6 +151,11 @@ class PptxViewerFragment : Fragment() {
             currentSlide++
             binding.recyclerSlides.smoothScrollToPosition(currentSlide)
             updateSlideInfo()
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++
+                binding.recyclerSlides.smoothScrollToPosition(currentSlide)
+                updateSlideInfo()
+            }
         }
     }
 
@@ -141,6 +176,20 @@ class PptxViewerFragment : Fragment() {
                         file
                     } else {
                         throw IllegalStateException("Could not read file")
+                    cachedFile?.let { file ->
+                        binding.toolbar.title = file.name
+                        
+                        // Create on-demand adapter - slides are rendered as they become visible
+                        slideAdapter = SlideAdapter(file) { slideIndex, slideCount ->
+                            if (totalSlides == 0) {
+                                totalSlides = slideCount
+                                updateSlideInfo()
+                            }
+                            if (slideIndex == 0) {
+                                binding.progressBar.visibility = View.GONE
+                            }
+                        }
+                        binding.recyclerSlides.adapter = slideAdapter
                     }
                 }
                 
@@ -243,10 +292,17 @@ class PptxViewerFragment : Fragment() {
         } catch (e: Exception) {
             ErrorHandler.logError("PptxViewer", "Error loading slides", e)
         }
+    private fun updateSlideInfo() {
+        binding.textSlideInfo.text = "Slide ${currentSlide + 1} of $totalSlides"
     }
 
-    private fun updateSlideInfo() {
-        binding.textSlideInfo.text = "Slide ${currentSlide + 1} of ${slideImages.size}"
+    private fun openEditor() {
+        fileUri?.let { uri ->
+            val bundle = Bundle().apply {
+                putString("file_uri", uri.toString())
+            }
+            findNavController().navigate(R.id.pptxEditorFragment, bundle)
+        }
     }
 
     private fun shareDocument() {
@@ -259,9 +315,53 @@ class PptxViewerFragment : Fragment() {
         }
     }
 
+    private fun enterPipMode() {
+        val mainActivity = activity as? MainActivity
+        if (mainActivity?.isPipSupported() == true) {
+            mainActivity.enterPipMode()
+        } else {
+            Toast.makeText(context, "Picture-in-Picture not supported on this device", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    /**
+     * Update UI based on PiP mode state
+     */
+    fun onPipModeChanged(isInPipMode: Boolean) {
+        if (_binding == null) return
+        
+        if (isInPipMode) {
+            // Hide UI elements in PiP mode
+            binding.toolbar.visibility = View.GONE
+            binding.appBarLayout.visibility = View.GONE
+            // Hide navigation controls
+            view?.findViewById<View>(R.id.fabPrevious)?.visibility = View.GONE
+            view?.findViewById<View>(R.id.fabNext)?.visibility = View.GONE
+            view?.findViewById<View>(R.id.textSlideInfo)?.visibility = View.GONE
+        } else {
+            // Show UI elements when exiting PiP mode
+            binding.toolbar.visibility = View.VISIBLE
+            binding.appBarLayout.visibility = View.VISIBLE
+            view?.findViewById<View>(R.id.fabPrevious)?.visibility = View.VISIBLE
+            view?.findViewById<View>(R.id.fabNext)?.visibility = View.VISIBLE
+            view?.findViewById<View>(R.id.textSlideInfo)?.visibility = View.VISIBLE
+        }
+    }
+
     private fun convertToPdf() {
         Toast.makeText(context, "Converting to PDF...", Toast.LENGTH_SHORT).show()
         // Navigate to converter or perform conversion
+    }
+
+    private fun startSlideshow() {
+        fileUri?.let { uri ->
+            val intent = Intent(requireContext(), PresentationModeActivity::class.java).apply {
+                putExtra(PresentationModeActivity.EXTRA_FILE_URI, uri.toString())
+            }
+            startActivity(intent)
+        } ?: run {
+            Toast.makeText(context, "No presentation loaded", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onDestroyView() {
@@ -269,6 +369,8 @@ class PptxViewerFragment : Fragment() {
         // Recycle all bitmaps using MemoryManager
         MemoryManager.recycleBitmaps(slideImages)
         slideImages.clear()
+        slideAdapter?.close()
+        slideAdapter = null
         _binding = null
     }
 }

@@ -23,6 +23,7 @@ class PdfPagesAdapter(
     private var pdfRenderer: PdfRenderer? = null
     private var pageCount = 0
     private val documentKey = pdfFile.absolutePath
+    private val renderedPages = mutableMapOf<Int, Bitmap>()
 
     init {
         try {
@@ -56,7 +57,14 @@ class PdfPagesAdapter(
 
     override fun getItemCount(): Int = pageCount
 
+    override fun onViewRecycled(holder: PageViewHolder) {
+        super.onViewRecycled(holder)
+        holder.recycle()
+    }
+
     fun close() {
+        renderedPages.values.forEach { it.recycle() }
+        renderedPages.clear()
         pdfRenderer?.close()
         // Clear cached pages for this document
         for (i in 0 until pageCount) {
@@ -68,6 +76,8 @@ class PdfPagesAdapter(
     inner class PageViewHolder(
         private val binding: ItemPdfPageBinding
     ) : RecyclerView.ViewHolder(binding.root) {
+
+        private var currentPageIndex: Int = -1
 
         fun bind(pageIndex: Int) {
             // Check cache first
@@ -86,6 +96,17 @@ class PdfPagesAdapter(
                 try {
                     // Trim cache if memory is low
                     MemoryManager.trimCacheIfNeeded()
+            currentPageIndex = pageIndex
+            
+            pdfRenderer?.let { renderer ->
+                try {
+                    // Check if page is already rendered
+                    val cachedBitmap = renderedPages[pageIndex]
+                    if (cachedBitmap != null && !cachedBitmap.isRecycled) {
+                        binding.imagePage.setImageBitmap(cachedBitmap)
+                        binding.textPageNumber.text = "Page ${pageIndex + 1}"
+                        return
+                    }
                     
                     val page = renderer.openPage(pageIndex)
                     
@@ -99,6 +120,7 @@ class PdfPagesAdapter(
                     
                     // Cache the rendered bitmap
                     MemoryManager.putBitmap(cacheKey, bitmap)
+                    renderedPages[pageIndex] = bitmap
                     
                     binding.imagePage.setImageBitmap(bitmap)
                     binding.textPageNumber.text = "Page ${pageIndex + 1}"
@@ -111,6 +133,8 @@ class PdfPagesAdapter(
         }
         
         fun clearImage() {
+
+        fun recycle() {
             binding.imagePage.setImageBitmap(null)
         }
     }
