@@ -3,24 +3,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/action_edit"
-        android:icon="@drawable/ic_edit"
-        android:title="@string/edit_document"
-        app:iconTint="@color/white"
-        app:showAsAction="ifRoom" />
-
-    <item
         android:id="@+id/action_share"
         android:icon="@drawable/ic_share"
         android:title="@string/share"
-        app:iconTint="@color/white"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/action_convert"
         android:icon="@drawable/ic_convert"
         android:title="@string/convert"
-        app:iconTint="@color/white"
         app:showAsAction="never" />
 
 </menu>

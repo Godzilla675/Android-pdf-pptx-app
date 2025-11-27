@@ -83,17 +83,24 @@
                 android:title="@string/sync_now" />
         </menu>
     </item>
+        android:id="@+id/action_edit"
+        android:icon="@drawable/ic_edit"
+        android:title="@string/edit_document"
+        app:iconTint="@color/white"
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/action_share"
         android:icon="@drawable/ic_share"
         android:title="@string/share"
+        app:iconTint="@color/white"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/action_ocr"
         android:icon="@drawable/ic_text"
         android:title="@string/run_ocr"
-        app:showAsAction="ifRoom" />
+        app:iconTint="@color/white"
+        app:showAsAction="never" />
 
 </menu>
