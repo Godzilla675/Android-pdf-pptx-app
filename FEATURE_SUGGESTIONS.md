@@ -160,7 +160,7 @@ This document contains suggested features for enhancing the Android Office Suite
 5. Add appropriate unit tests for new features
 
 ### Recommended Libraries
-- **PDF Annotation**: PSPDFKit, PDFTron, or iTextG for annotation
+- **PDF Annotation**: PSPDFKit, PDFTron, or iText for annotation
 - **Cloud Storage**: Official SDKs (Google Drive API, Dropbox SDK)
 - **Biometrics**: androidx.biometric library
 - **Print**: Android Print Framework
@@ -168,7 +168,7 @@ This document contains suggested features for enhancing the Android Office Suite
 
 ### Code Quality
 - Run lint checks before submitting PRs
-- Maintain backwards compatibility (minSdk 26)
+- Maintain backwards compatibility (minSdk 24)
 - Handle permissions gracefully
 - Follow Material Design guidelines
 
@@ -193,7 +193,7 @@ This document contains suggested features for enhancing the Android Office Suite
 
 1. **Password Protection for PDFs** - Using existing iText library
 2. **Image to PDF conversion** - Extend existing PDF generation
-3. **Multi-language OCR** - ML Kit already supports multiple languages
+3. **Multi-language OCR** - Enable additional ML Kit language packs
 4. **File favorites/bookmarks** - Simple local storage addition
 5. **Share improvements** - Enhance existing ShareUtils
 6. **Print support** - Use Android Print Framework
