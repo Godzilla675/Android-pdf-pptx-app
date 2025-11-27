@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -20,6 +19,7 @@ import com.officesuite.app.data.templates.TemplateRepository
 import com.officesuite.app.databinding.FragmentHomeBinding
 import com.officesuite.app.utils.FileUtils
 import kotlinx.coroutines.launch
+import com.officesuite.app.utils.NavigationUtils
 
 class HomeFragment : Fragment() {
 
@@ -181,6 +181,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun openDocument(file: DocumentFile) {
+        NavigationUtils.navigateToViewer(this, file.uri.toString(), file.type)
         val bundle = Bundle().apply {
             putString("file_uri", file.uri.toString())
         }
@@ -194,6 +195,9 @@ class HomeFragment : Fragment() {
             }
             DocumentType.PPTX, DocumentType.PPT -> {
                 findNavController().navigate(R.id.pptxViewerFragment, bundle)
+            }
+            DocumentType.XLSX, DocumentType.XLS -> {
+                findNavController().navigate(R.id.xlsxViewerFragment, bundle)
             }
             DocumentType.MARKDOWN, DocumentType.TXT -> {
                 findNavController().navigate(R.id.markdownFragment, bundle)

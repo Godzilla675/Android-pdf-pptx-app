@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -87,11 +88,14 @@ class PdfViewerFragment : Fragment() {
             setNavigationOnClickListener {
                 @Suppress("DEPRECATION")
                 requireActivity().onBackPressed()
+                requireActivity().onBackPressedDispatcher.onBackPressed()
             }
             setOnMenuItemClickListener { item ->
                 when (item.itemId) {
                     R.id.action_comments -> {
                         showComments()
+                    R.id.action_edit -> {
+                        openEditor()
                         true
                     }
                     R.id.action_share -> {
@@ -240,6 +244,13 @@ class PdfViewerFragment : Fragment() {
             .setMessage(details)
             .setPositiveButton("OK", null)
             .show()
+    private fun openEditor() {
+        fileUri?.let { uri ->
+            val bundle = Bundle().apply {
+                putString("file_uri", uri.toString())
+            }
+            findNavController().navigate(R.id.pdfEditorFragment, bundle)
+        }
     }
 
     private fun shareDocument() {
