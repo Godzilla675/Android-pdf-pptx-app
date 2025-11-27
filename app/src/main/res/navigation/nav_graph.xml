@@ -106,4 +106,18 @@
             android:defaultValue="" />
     </fragment>
 
+    <!-- Settings Fragment -->
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.officesuite.app.ui.settings.SettingsFragment"
+        android:label="@string/settings"
+        tools:layout="@layout/fragment_settings" />
+
+    <!-- Favorites Fragment -->
+    <fragment
+        android:id="@+id/favoritesFragment"
+        android:name="com.officesuite.app.ui.favorites.FavoritesFragment"
+        android:label="@string/favorites"
+        tools:layout="@layout/fragment_favorites" />
+
 </navigation>
