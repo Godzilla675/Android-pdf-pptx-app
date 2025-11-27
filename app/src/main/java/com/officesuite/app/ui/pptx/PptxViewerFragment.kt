@@ -157,12 +157,15 @@ class PptxViewerFragment : Fragment() {
         
         try {
             val slideShow = XMLSlideShow(FileInputStream(file))
-            val dimension = slideShow.pageSize
+            
+            // Use standard 16:9 presentation dimensions (1920x1080 scaled down)
+            val slideWidth = 960
+            val slideHeight = 540
             
             for (slide in slideShow.slides) {
                 val bitmap = Bitmap.createBitmap(
-                    dimension.width,
-                    dimension.height,
+                    slideWidth,
+                    slideHeight,
                     Bitmap.Config.ARGB_8888
                 )
                 val canvas = Canvas(bitmap)
@@ -171,13 +174,13 @@ class PptxViewerFragment : Fragment() {
                 // Extract text content from the slide
                 val textPaint = android.graphics.Paint().apply {
                     color = Color.BLACK
-                    textSize = 32f
+                    textSize = 24f
                     isAntiAlias = true
                 }
                 
                 val titlePaint = android.graphics.Paint().apply {
                     color = Color.BLACK
-                    textSize = 48f
+                    textSize = 36f
                     textAlign = android.graphics.Paint.Align.CENTER
                     isAntiAlias = true
                 }
@@ -185,7 +188,7 @@ class PptxViewerFragment : Fragment() {
                 val slideNumber = slideImages.size + 1
                 
                 // Try to extract slide title and content
-                var yPosition = 80f
+                var yPosition = 60f
                 var hasContent = false
                 
                 for (shape in slide.shapes) {
@@ -194,13 +197,13 @@ class PptxViewerFragment : Fragment() {
                         if (text.isNotBlank()) {
                             hasContent = true
                             // Draw first text as title, rest as content
-                            if (yPosition == 80f) {
-                                canvas.drawText(text.take(50), dimension.width / 2f, yPosition, titlePaint)
+                            if (yPosition == 60f) {
+                                canvas.drawText(text.take(40), slideWidth / 2f, yPosition, titlePaint)
                             } else {
-                                canvas.drawText(text.take(60), 40f, yPosition, textPaint)
+                                canvas.drawText(text.take(50), 30f, yPosition, textPaint)
                             }
-                            yPosition += 50f
-                            if (yPosition > dimension.height - 100) break
+                            yPosition += 40f
+                            if (yPosition > slideHeight - 80) break
                         }
                     }
                 }
@@ -209,8 +212,8 @@ class PptxViewerFragment : Fragment() {
                 if (!hasContent) {
                     canvas.drawText(
                         "Slide $slideNumber",
-                        dimension.width / 2f,
-                        dimension.height / 2f,
+                        slideWidth / 2f,
+                        slideHeight / 2f,
                         titlePaint
                     )
                 }

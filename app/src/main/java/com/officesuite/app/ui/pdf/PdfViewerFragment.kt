@@ -8,7 +8,9 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.github.barteksc.pdfviewer.scroll.DefaultScrollHandle
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.PagerSnapHelper
+import androidx.recyclerview.widget.RecyclerView
 import com.officesuite.app.R
 import com.officesuite.app.databinding.FragmentPdfViewerBinding
 import com.officesuite.app.ocr.OcrManager
@@ -28,6 +30,7 @@ class PdfViewerFragment : Fragment() {
     private var currentPage = 0
     private var totalPages = 0
     private var cachedFile: File? = null
+    private var pdfAdapter: PdfPagesAdapter? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -48,6 +51,28 @@ class PdfViewerFragment : Fragment() {
         
         setupToolbar()
         setupClickListeners()
+        setupRecyclerView()
+    }
+
+    private fun setupRecyclerView() {
+        binding.recyclerPdfPages.apply {
+            layoutManager = LinearLayoutManager(context)
+            // Add snap helper for page-by-page scrolling
+            val snapHelper = PagerSnapHelper()
+            snapHelper.attachToRecyclerView(this)
+            
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+                    val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                    val firstVisiblePosition = layoutManager.findFirstVisibleItemPosition()
+                    if (firstVisiblePosition != RecyclerView.NO_POSITION && firstVisiblePosition != currentPage) {
+                        currentPage = firstVisiblePosition
+                        updatePageInfo()
+                    }
+                }
+            })
+        }
     }
 
     private fun setupToolbar() {
@@ -76,14 +101,16 @@ class PdfViewerFragment : Fragment() {
         binding.fabPrevious.setOnClickListener {
             if (currentPage > 0) {
                 currentPage--
-                binding.pdfView.jumpTo(currentPage)
+                binding.recyclerPdfPages.smoothScrollToPosition(currentPage)
+                updatePageInfo()
             }
         }
         
         binding.fabNext.setOnClickListener {
             if (currentPage < totalPages - 1) {
                 currentPage++
-                binding.pdfView.jumpTo(currentPage)
+                binding.recyclerPdfPages.smoothScrollToPosition(currentPage)
+                updatePageInfo()
             }
         }
     }
@@ -99,31 +126,14 @@ class PdfViewerFragment : Fragment() {
                     }
                     
                     cachedFile?.let { file ->
-                        binding.pdfView.fromFile(file)
-                            .enableSwipe(true)
-                            .swipeHorizontal(false)
-                            .enableDoubletap(true)
-                            .defaultPage(0)
-                            .enableAnnotationRendering(true)
-                            .password(null)
-                            .scrollHandle(DefaultScrollHandle(requireContext()))
-                            .spacing(10)
-                            .onPageChange { page, pageCount ->
-                                currentPage = page
-                                totalPages = pageCount
-                                updatePageInfo()
-                            }
-                            .onLoad { nbPages ->
-                                totalPages = nbPages
+                        pdfAdapter = PdfPagesAdapter(file) { page, count ->
+                            totalPages = count
+                            if (page == 0) {
                                 binding.progressBar.visibility = View.GONE
                                 updatePageInfo()
                             }
-                            .onError { error ->
-                                binding.progressBar.visibility = View.GONE
-                                Toast.makeText(context, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
-                            }
-                            .load()
-                        
+                        }
+                        binding.recyclerPdfPages.adapter = pdfAdapter
                         binding.toolbar.title = file.name
                     }
                 } catch (e: Exception) {
@@ -161,6 +171,7 @@ class PdfViewerFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        pdfAdapter?.close()
         _binding = null
     }
 }

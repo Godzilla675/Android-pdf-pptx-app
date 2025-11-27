@@ -228,13 +228,15 @@ class DocumentConverter(private val context: Context) {
         val pdfDocument = PdfDocument()
         
         try {
-            val dimension = slideShow.pageSize
+            // Use standard 16:9 presentation dimensions
+            val slideWidth = 960
+            val slideHeight = 540
             var pageNum = 1
             
             for (slide in slideShow.slides) {
                 val pageInfo = PdfDocument.PageInfo.Builder(
-                    dimension.width,
-                    dimension.height,
+                    slideWidth,
+                    slideHeight,
                     pageNum
                 ).create()
                 
@@ -243,8 +245,8 @@ class DocumentConverter(private val context: Context) {
                 
                 // Create bitmap for slide
                 val bitmap = Bitmap.createBitmap(
-                    dimension.width,
-                    dimension.height,
+                    slideWidth,
+                    slideHeight,
                     Bitmap.Config.ARGB_8888
                 )
                 val bitmapCanvas = Canvas(bitmap)
