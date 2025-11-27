@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.officesuite.app.MainActivity
 import com.officesuite.app.R
 import com.officesuite.app.databinding.FragmentPdfViewerBinding
 import com.officesuite.app.ocr.OcrManager
@@ -78,11 +79,21 @@ class PdfViewerFragment : Fragment() {
     private fun setupToolbar() {
         binding.toolbar.apply {
             setNavigationOnClickListener {
+                @Suppress("DEPRECATION")
                 requireActivity().onBackPressed()
             }
             inflateMenu(R.menu.menu_pdf_viewer)
+            
+            // Hide PiP option if not supported
+            val mainActivity = activity as? MainActivity
+            menu.findItem(R.id.action_pip)?.isVisible = mainActivity?.isPipSupported() == true
+            
             setOnMenuItemClickListener { item ->
                 when (item.itemId) {
+                    R.id.action_pip -> {
+                        enterPipMode()
+                        true
+                    }
                     R.id.action_share -> {
                         shareDocument()
                         true
@@ -154,6 +165,15 @@ class PdfViewerFragment : Fragment() {
         }
     }
 
+    private fun enterPipMode() {
+        val mainActivity = activity as? MainActivity
+        if (mainActivity?.isPipSupported() == true) {
+            mainActivity.enterPipMode()
+        } else {
+            Toast.makeText(context, "Picture-in-Picture not supported on this device", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private fun runOcr() {
         Toast.makeText(context, "Running OCR on current page...", Toast.LENGTH_SHORT).show()
         
@@ -166,6 +186,30 @@ class PdfViewerFragment : Fragment() {
             } catch (e: Exception) {
                 Toast.makeText(context, "OCR failed: ${e.message}", Toast.LENGTH_SHORT).show()
             }
+        }
+    }
+
+    /**
+     * Update UI based on PiP mode state
+     */
+    fun onPipModeChanged(isInPipMode: Boolean) {
+        if (_binding == null) return
+        
+        if (isInPipMode) {
+            // Hide UI elements in PiP mode
+            binding.toolbar.visibility = View.GONE
+            binding.appBarLayout.visibility = View.GONE
+            // Hide navigation controls in linear layout
+            view?.findViewById<View>(R.id.fabPrevious)?.visibility = View.GONE
+            view?.findViewById<View>(R.id.fabNext)?.visibility = View.GONE
+            view?.findViewById<View>(R.id.textPageInfo)?.visibility = View.GONE
+        } else {
+            // Show UI elements when exiting PiP mode
+            binding.toolbar.visibility = View.VISIBLE
+            binding.appBarLayout.visibility = View.VISIBLE
+            view?.findViewById<View>(R.id.fabPrevious)?.visibility = View.VISIBLE
+            view?.findViewById<View>(R.id.fabNext)?.visibility = View.VISIBLE
+            view?.findViewById<View>(R.id.textPageInfo)?.visibility = View.VISIBLE
         }
     }
 

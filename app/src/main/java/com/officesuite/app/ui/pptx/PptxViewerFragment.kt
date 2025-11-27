@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
+import com.officesuite.app.MainActivity
 import com.officesuite.app.R
 import com.officesuite.app.databinding.FragmentPptxViewerBinding
 import com.officesuite.app.utils.FileUtils
@@ -59,11 +60,21 @@ class PptxViewerFragment : Fragment() {
     private fun setupToolbar() {
         binding.toolbar.apply {
             setNavigationOnClickListener {
+                @Suppress("DEPRECATION")
                 requireActivity().onBackPressed()
             }
             inflateMenu(R.menu.menu_pptx_viewer)
+            
+            // Hide PiP option if not supported
+            val mainActivity = activity as? MainActivity
+            menu.findItem(R.id.action_pip)?.isVisible = mainActivity?.isPipSupported() == true
+            
             setOnMenuItemClickListener { item ->
                 when (item.itemId) {
+                    R.id.action_pip -> {
+                        enterPipMode()
+                        true
+                    }
                     R.id.action_share -> {
                         shareDocument()
                         true
@@ -238,6 +249,39 @@ class PptxViewerFragment : Fragment() {
                 file,
                 "application/vnd.openxmlformats-officedocument.presentationml.presentation"
             )
+        }
+    }
+
+    private fun enterPipMode() {
+        val mainActivity = activity as? MainActivity
+        if (mainActivity?.isPipSupported() == true) {
+            mainActivity.enterPipMode()
+        } else {
+            Toast.makeText(context, "Picture-in-Picture not supported on this device", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    /**
+     * Update UI based on PiP mode state
+     */
+    fun onPipModeChanged(isInPipMode: Boolean) {
+        if (_binding == null) return
+        
+        if (isInPipMode) {
+            // Hide UI elements in PiP mode
+            binding.toolbar.visibility = View.GONE
+            binding.appBarLayout.visibility = View.GONE
+            // Hide navigation controls
+            view?.findViewById<View>(R.id.fabPrevious)?.visibility = View.GONE
+            view?.findViewById<View>(R.id.fabNext)?.visibility = View.GONE
+            view?.findViewById<View>(R.id.textSlideInfo)?.visibility = View.GONE
+        } else {
+            // Show UI elements when exiting PiP mode
+            binding.toolbar.visibility = View.VISIBLE
+            binding.appBarLayout.visibility = View.VISIBLE
+            view?.findViewById<View>(R.id.fabPrevious)?.visibility = View.VISIBLE
+            view?.findViewById<View>(R.id.fabNext)?.visibility = View.VISIBLE
+            view?.findViewById<View>(R.id.textSlideInfo)?.visibility = View.VISIBLE
         }
     }
 
