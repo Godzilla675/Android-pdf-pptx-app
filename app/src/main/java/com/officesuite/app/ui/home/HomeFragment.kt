@@ -1,13 +1,11 @@
 package com.officesuite.app.ui.home
 
-import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -18,6 +16,7 @@ import com.officesuite.app.data.model.DocumentFile
 import com.officesuite.app.data.model.DocumentType
 import com.officesuite.app.databinding.FragmentHomeBinding
 import com.officesuite.app.utils.FileUtils
+import com.officesuite.app.utils.NavigationUtils
 
 class HomeFragment : Fragment() {
 
@@ -120,37 +119,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun openDocument(file: DocumentFile) {
-        val bundle = Bundle().apply {
-            putString("file_uri", file.uri.toString())
-        }
-        
-        when (file.type) {
-            DocumentType.PDF -> {
-                findNavController().navigate(R.id.pdfViewerFragment, bundle)
-            }
-            DocumentType.DOCX, DocumentType.DOC -> {
-                findNavController().navigate(R.id.docxViewerFragment, bundle)
-            }
-            DocumentType.PPTX, DocumentType.PPT -> {
-                findNavController().navigate(R.id.pptxViewerFragment, bundle)
-            }
-            DocumentType.MARKDOWN, DocumentType.TXT -> {
-                findNavController().navigate(R.id.markdownFragment, bundle)
-            }
-            DocumentType.CSV -> {
-                findNavController().navigate(R.id.csvViewerFragment, bundle)
-            }
-            DocumentType.JSON -> {
-                findNavController().navigate(R.id.jsonViewerFragment, bundle)
-            }
-            DocumentType.XML -> {
-                bundle.putBoolean("is_xml", true)
-                findNavController().navigate(R.id.jsonViewerFragment, bundle)
-            }
-            else -> {
-                Toast.makeText(context, "Unsupported file type", Toast.LENGTH_SHORT).show()
-            }
-        }
+        NavigationUtils.navigateToViewer(this, file.uri.toString(), file.type)
     }
 
     private fun showCreateNewDialog() {

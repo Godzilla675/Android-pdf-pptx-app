@@ -1,19 +1,17 @@
 package com.officesuite.app.ui.favorites
 
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.officesuite.app.R
-import com.officesuite.app.data.model.DocumentType
 import com.officesuite.app.data.repository.FavoriteItem
 import com.officesuite.app.data.repository.PreferencesRepository
 import com.officesuite.app.databinding.FragmentFavoritesBinding
+import com.officesuite.app.utils.NavigationUtils
 
 /**
  * Fragment for displaying and managing favorite documents.
@@ -76,33 +74,7 @@ class FavoritesFragment : Fragment() {
     }
 
     private fun openDocument(favorite: FavoriteItem) {
-        val bundle = Bundle().apply {
-            putString("file_uri", favorite.uri)
-        }
-        
-        val docType = try {
-            DocumentType.valueOf(favorite.type)
-        } catch (e: Exception) {
-            DocumentType.UNKNOWN
-        }
-        
-        when (docType) {
-            DocumentType.PDF -> {
-                findNavController().navigate(R.id.pdfViewerFragment, bundle)
-            }
-            DocumentType.DOCX, DocumentType.DOC -> {
-                findNavController().navigate(R.id.docxViewerFragment, bundle)
-            }
-            DocumentType.PPTX, DocumentType.PPT -> {
-                findNavController().navigate(R.id.pptxViewerFragment, bundle)
-            }
-            DocumentType.MARKDOWN, DocumentType.TXT -> {
-                findNavController().navigate(R.id.markdownFragment, bundle)
-            }
-            else -> {
-                Toast.makeText(context, "Unsupported file type", Toast.LENGTH_SHORT).show()
-            }
-        }
+        NavigationUtils.navigateToViewer(this, favorite.uri, favorite.type)
     }
 
     private fun removeFavorite(favorite: FavoriteItem) {

@@ -152,8 +152,10 @@ class JsonViewerFragment : Fragment() {
                     }
                     char == '>' -> {
                         result.append(char)
-                        if (result.toString().takeLast(2) != "/>") {
-                            if (result.toString().contains("</")) {
+                        val resultStr = result.toString()
+                        val lastTwo = if (resultStr.length >= 2) resultStr.takeLast(2) else ""
+                        if (lastTwo != "/>") {
+                            if (resultStr.contains("</")) {
                                 indent = maxOf(0, indent - 1)
                             } else {
                                 indent++
