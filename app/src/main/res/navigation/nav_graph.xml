@@ -60,6 +60,26 @@
             android:defaultValue="" />
     </fragment>
 
+    <!-- Settings Fragment -->
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.officesuite.app.ui.settings.SettingsFragment"
+        android:label="@string/settings"
+        tools:layout="@layout/fragment_settings" />
+
+    <!-- Favorites Fragment -->
+    <fragment
+        android:id="@+id/favoritesFragment"
+        android:name="com.officesuite.app.ui.favorites.FavoritesFragment"
+        android:label="@string/favorites"
+        tools:layout="@layout/fragment_favorites" />
+
+    <!-- CSV Viewer Fragment -->
+    <fragment
+        android:id="@+id/csvViewerFragment"
+        android:name="com.officesuite.app.ui.data.CsvViewerFragment"
+        android:label="@string/csv_file"
+        tools:layout="@layout/fragment_csv_viewer">
     <!-- Resolved Conflict Fragments -->
     <!-- XLSX Viewer Fragment -->
     <fragment
@@ -97,6 +117,12 @@
             android:defaultValue="" />
     </fragment>
 
+    <!-- JSON Viewer Fragment -->
+    <fragment
+        android:id="@+id/jsonViewerFragment"
+        android:name="com.officesuite.app.ui.data.JsonViewerFragment"
+        android:label="@string/json_file"
+        tools:layout="@layout/fragment_json_viewer">
     <!-- DOCX Editor Fragment -->
     <fragment
         android:id="@+id/docxEditorFragment"
@@ -107,6 +133,13 @@
             android:name="file_uri"
             app:argType="string"
             android:defaultValue="" />
+        <argument
+            android:name="is_xml"
+            app:argType="boolean"
+            android:defaultValue="false" />
+    </fragment>
+
+</navigation>
     </fragment>
 
 </navigation>
