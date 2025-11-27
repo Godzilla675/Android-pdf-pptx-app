@@ -8,19 +8,33 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.officesuite.app.R
 import com.officesuite.app.databinding.FragmentPdfViewerBinding
 import com.officesuite.app.ocr.OcrManager
+import com.officesuite.app.utils.ErrorHandler
 import com.officesuite.app.utils.FileUtils
+import com.officesuite.app.utils.GestureHandler
+import com.officesuite.app.utils.Result
 import com.officesuite.app.utils.ShareUtils
+import com.officesuite.app.utils.animateFadeIn
+import com.officesuite.app.utils.animateFadeOut
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
+/**
+ * Fragment for viewing PDF documents.
+ * Features:
+ * - Lazy loading with LRU caching for memory optimization
+ * - Swipe gesture navigation between pages
+ * - OCR support for text extraction
+ * - Share functionality
+ */
 class PdfViewerFragment : Fragment() {
 
     private var _binding: FragmentPdfViewerBinding? = null
@@ -78,7 +92,7 @@ class PdfViewerFragment : Fragment() {
     private fun setupToolbar() {
         binding.toolbar.apply {
             setNavigationOnClickListener {
-                requireActivity().onBackPressed()
+                findNavController().navigateUp()
             }
             inflateMenu(R.menu.menu_pdf_viewer)
             setOnMenuItemClickListener { item ->
@@ -99,19 +113,27 @@ class PdfViewerFragment : Fragment() {
 
     private fun setupClickListeners() {
         binding.fabPrevious.setOnClickListener {
-            if (currentPage > 0) {
-                currentPage--
-                binding.recyclerPdfPages.smoothScrollToPosition(currentPage)
-                updatePageInfo()
-            }
+            navigateToPreviousPage()
         }
         
         binding.fabNext.setOnClickListener {
-            if (currentPage < totalPages - 1) {
-                currentPage++
-                binding.recyclerPdfPages.smoothScrollToPosition(currentPage)
-                updatePageInfo()
-            }
+            navigateToNextPage()
+        }
+    }
+    
+    private fun navigateToPreviousPage() {
+        if (currentPage > 0) {
+            currentPage--
+            binding.recyclerPdfPages.smoothScrollToPosition(currentPage)
+            updatePageInfo()
+        }
+    }
+    
+    private fun navigateToNextPage() {
+        if (currentPage < totalPages - 1) {
+            currentPage++
+            binding.recyclerPdfPages.smoothScrollToPosition(currentPage)
+            updatePageInfo()
         }
     }
 
@@ -120,28 +142,46 @@ class PdfViewerFragment : Fragment() {
             binding.progressBar.visibility = View.VISIBLE
             
             lifecycleScope.launch {
-                try {
-                    cachedFile = withContext(Dispatchers.IO) {
+                val result = Result.runCatchingSuspend {
+                    withContext(Dispatchers.IO) {
                         FileUtils.copyToCache(requireContext(), uri)
                     }
-                    
-                    cachedFile?.let { file ->
-                        pdfAdapter = PdfPagesAdapter(file) { page, count ->
-                            totalPages = count
-                            if (page == 0) {
-                                binding.progressBar.visibility = View.GONE
-                                updatePageInfo()
-                            }
-                        }
-                        binding.recyclerPdfPages.adapter = pdfAdapter
-                        binding.toolbar.title = file.name
+                }
+                
+                result.onSuccess { file ->
+                    if (file != null) {
+                        cachedFile = file
+                        setupPdfAdapter(file)
+                    } else {
+                        showError(ErrorHandler.ErrorType.FILE_READ_ERROR)
                     }
-                } catch (e: Exception) {
-                    binding.progressBar.visibility = View.GONE
-                    Toast.makeText(context, "Failed to load PDF: ${e.message}", Toast.LENGTH_SHORT).show()
+                }.onError { error ->
+                    showError(error.exception)
                 }
             }
         }
+    }
+    
+    private fun setupPdfAdapter(file: File) {
+        pdfAdapter = PdfPagesAdapter(file) { page, count ->
+            totalPages = count
+            if (page == 0) {
+                binding.progressBar.animateFadeOut()
+                updatePageInfo()
+            }
+        }
+        binding.recyclerPdfPages.adapter = pdfAdapter
+        binding.toolbar.title = file.name
+    }
+    
+    private fun showError(throwable: Throwable) {
+        binding.progressBar.visibility = View.GONE
+        ErrorHandler.showErrorToast(requireContext(), throwable)
+    }
+    
+    private fun showError(errorType: ErrorHandler.ErrorType) {
+        binding.progressBar.visibility = View.GONE
+        ErrorHandler.showErrorToast(requireContext(), errorType)
     }
 
     private fun updatePageInfo() {
@@ -164,7 +204,7 @@ class PdfViewerFragment : Fragment() {
                 // This is a simplified implementation
                 Toast.makeText(context, "OCR requires image input. Please use scanner.", Toast.LENGTH_LONG).show()
             } catch (e: Exception) {
-                Toast.makeText(context, "OCR failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                ErrorHandler.showErrorToast(requireContext(), e)
             }
         }
     }

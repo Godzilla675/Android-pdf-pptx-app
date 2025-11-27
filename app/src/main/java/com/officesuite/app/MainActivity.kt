@@ -11,13 +11,13 @@ import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.officesuite.app.databinding.ActivityMainBinding
+import com.officesuite.app.ui.onboarding.OnboardingManager
 
 class MainActivity : AppCompatActivity() {
 
@@ -41,6 +41,16 @@ class MainActivity : AppCompatActivity() {
         setupNavigation()
         checkPermissions()
         handleIntent(intent)
+        
+        // Check if onboarding should be shown
+        checkOnboarding()
+    }
+    
+    private fun checkOnboarding() {
+        if (!OnboardingManager.isOnboardingComplete(this)) {
+            // Navigate to onboarding
+            navController.navigate(R.id.onboardingFragment)
+        }
     }
 
     private fun setupNavigation() {
