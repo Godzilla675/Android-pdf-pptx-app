@@ -8,14 +8,17 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.officesuite.app.R
 import com.officesuite.app.data.model.DocumentFile
 import com.officesuite.app.data.model.DocumentType
+import com.officesuite.app.data.templates.TemplateRepository
 import com.officesuite.app.databinding.FragmentHomeBinding
 import com.officesuite.app.utils.FileUtils
+import kotlinx.coroutines.launch
 import com.officesuite.app.utils.NavigationUtils
 
 class HomeFragment : Fragment() {
@@ -25,6 +28,7 @@ class HomeFragment : Fragment() {
 
     private lateinit var recentFilesAdapter: RecentFilesAdapter
     private lateinit var quickActionsAdapter: QuickActionsAdapter
+    private lateinit var templateRepository: TemplateRepository
 
     private val openDocumentLauncher = registerForActivityResult(
         ActivityResultContracts.OpenDocument()
@@ -43,9 +47,11 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        templateRepository = TemplateRepository(requireContext())
         setupUI()
         setupRecyclerViews()
         setupClickListeners()
+        setupTemplateClickListeners()
     }
 
     private fun setupUI() {
@@ -93,6 +99,62 @@ class HomeFragment : Fragment() {
 
         binding.cardOpenFile.setOnClickListener {
             openFilePicker(arrayOf("*/*"))
+        }
+        
+        binding.textViewAllTemplates.setOnClickListener {
+            showAllTemplatesDialog()
+        }
+    }
+    
+    private fun setupTemplateClickListeners() {
+        binding.cardTemplateResume.setOnClickListener {
+            openTemplateById("builtin_resume_classic")
+        }
+        
+        binding.cardTemplateLetter.setOnClickListener {
+            openTemplateById("builtin_letter_formal")
+        }
+        
+        binding.cardTemplateInvoice.setOnClickListener {
+            openTemplateById("builtin_invoice")
+        }
+        
+        binding.cardTemplatePresentation.setOnClickListener {
+            openTemplateById("builtin_presentation_business")
+        }
+    }
+    
+    private fun openTemplateById(templateId: String) {
+        lifecycleScope.launch {
+            val template = templateRepository.getTemplateById(templateId)
+            if (template != null) {
+                // Record usage
+                templateRepository.recordTemplateUsage(templateId)
+                
+                // Navigate to markdown editor with template content
+                val bundle = Bundle().apply {
+                    putString("template_content", template.content)
+                    putString("template_name", template.name)
+                }
+                findNavController().navigate(R.id.markdownFragment, bundle)
+            } else {
+                Toast.makeText(context, "Template not found", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+    
+    private fun showAllTemplatesDialog() {
+        lifecycleScope.launch {
+            val templates = templateRepository.getAllTemplates()
+            val templateNames = templates.map { it.name }.toTypedArray()
+            
+            android.app.AlertDialog.Builder(requireContext())
+                .setTitle(R.string.templates)
+                .setItems(templateNames) { _, which ->
+                    openTemplateById(templates[which].id)
+                }
+                .setNegativeButton(R.string.cancel, null)
+                .show()
         }
     }
 
@@ -147,23 +209,19 @@ class HomeFragment : Fragment() {
     }
 
     private fun showCreateNewDialog() {
-        val options = arrayOf("Markdown Document", "Text Document")
+        val options = arrayOf("Markdown Document", "From Template")
         android.app.AlertDialog.Builder(requireContext())
             .setTitle("Create New")
             .setItems(options) { _, which ->
                 when (which) {
                     0 -> createNewMarkdown()
-                    1 -> createNewText()
+                    1 -> showAllTemplatesDialog()
                 }
             }
             .show()
     }
 
     private fun createNewMarkdown() {
-        findNavController().navigate(R.id.markdownFragment)
-    }
-
-    private fun createNewText() {
         findNavController().navigate(R.id.markdownFragment)
     }
 

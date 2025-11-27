@@ -13,8 +13,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.officesuite.app.R
+import com.officesuite.app.data.collaboration.CollaborationRepository
 import com.officesuite.app.databinding.FragmentPdfViewerBinding
 import com.officesuite.app.ocr.OcrManager
+import com.officesuite.app.ui.collaboration.CommentsDialogFragment
 import com.officesuite.app.utils.FileUtils
 import com.officesuite.app.utils.ShareUtils
 import kotlinx.coroutines.Dispatchers
@@ -32,6 +34,8 @@ class PdfViewerFragment : Fragment() {
     private var totalPages = 0
     private var cachedFile: File? = null
     private var pdfAdapter: PdfPagesAdapter? = null
+    private var documentId: String = ""
+    private lateinit var collaborationRepository: CollaborationRepository
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,8 +49,11 @@ class PdfViewerFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         
+        collaborationRepository = CollaborationRepository(requireContext())
+        
         arguments?.getString("file_uri")?.let { uriString ->
             fileUri = Uri.parse(uriString)
+            documentId = uriString // Use URI as document ID
             loadPdf()
         }
         
@@ -79,11 +86,14 @@ class PdfViewerFragment : Fragment() {
     private fun setupToolbar() {
         binding.toolbar.apply {
             setNavigationOnClickListener {
+                @Suppress("DEPRECATION")
+                requireActivity().onBackPressed()
                 requireActivity().onBackPressedDispatcher.onBackPressed()
             }
-            inflateMenu(R.menu.menu_pdf_viewer)
             setOnMenuItemClickListener { item ->
                 when (item.itemId) {
+                    R.id.action_comments -> {
+                        showComments()
                     R.id.action_edit -> {
                         openEditor()
                         true
@@ -94,6 +104,10 @@ class PdfViewerFragment : Fragment() {
                     }
                     R.id.action_ocr -> {
                         runOcr()
+                        true
+                    }
+                    R.id.action_version_history -> {
+                        showVersionHistory()
                         true
                     }
                     else -> false
@@ -153,6 +167,83 @@ class PdfViewerFragment : Fragment() {
         binding.textPageInfo.text = getString(R.string.page_of, currentPage + 1, totalPages)
     }
 
+    private fun showComments() {
+        val dialog = CommentsDialogFragment.newInstance(
+            documentId = documentId,
+            pageNumber = currentPage + 1
+        )
+        dialog.show(parentFragmentManager, "comments_dialog")
+    }
+    
+    private fun showVersionHistory() {
+        lifecycleScope.launch {
+            val versions = collaborationRepository.getVersionsForDocument(documentId)
+            
+            if (versions.isEmpty()) {
+                Toast.makeText(context, R.string.no_version_history, Toast.LENGTH_SHORT).show()
+                return@launch
+            }
+            
+            val versionNames = versions.map { 
+                "${it.name ?: "Version ${it.versionNumber}"} - ${java.text.SimpleDateFormat("MMM dd, yyyy", java.util.Locale.getDefault()).format(java.util.Date(it.createdAt))}"
+            }.toTypedArray()
+            
+            android.app.AlertDialog.Builder(requireContext())
+                .setTitle(R.string.version_history)
+                .setItems(versionNames) { _, which ->
+                    val version = versions[which]
+                    showVersionOptions(version)
+                }
+                .setNegativeButton(R.string.cancel, null)
+                .show()
+        }
+    }
+    
+    private fun showVersionOptions(version: com.officesuite.app.data.collaboration.DocumentVersion) {
+        val options = arrayOf("Restore this version", "View details")
+        
+        android.app.AlertDialog.Builder(requireContext())
+            .setTitle(version.name ?: "Version ${version.versionNumber}")
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> restoreVersion(version)
+                    1 -> showVersionDetails(version)
+                }
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+    
+    private fun restoreVersion(version: com.officesuite.app.data.collaboration.DocumentVersion) {
+        lifecycleScope.launch {
+            cachedFile?.let { file ->
+                val success = collaborationRepository.restoreVersion(version.id, file.absolutePath)
+                if (success) {
+                    Toast.makeText(context, "Version restored", Toast.LENGTH_SHORT).show()
+                    loadPdf() // Reload the PDF
+                } else {
+                    Toast.makeText(context, "Failed to restore version", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+    
+    private fun showVersionDetails(version: com.officesuite.app.data.collaboration.DocumentVersion) {
+        val dateFormat = java.text.SimpleDateFormat("MMM dd, yyyy HH:mm", java.util.Locale.getDefault())
+        val details = buildString {
+            appendLine("Version: ${version.versionNumber}")
+            appendLine("Name: ${version.name ?: "N/A"}")
+            appendLine("Created: ${dateFormat.format(java.util.Date(version.createdAt))}")
+            appendLine("Author: ${version.author}")
+            appendLine("Size: ${version.fileSize / 1024} KB")
+            version.description?.let { appendLine("Description: $it") }
+        }
+        
+        android.app.AlertDialog.Builder(requireContext())
+            .setTitle("Version Details")
+            .setMessage(details)
+            .setPositiveButton("OK", null)
+            .show()
     private fun openEditor() {
         fileUri?.let { uri ->
             val bundle = Bundle().apply {
@@ -173,7 +264,6 @@ class PdfViewerFragment : Fragment() {
         
         lifecycleScope.launch {
             try {
-                val ocrManager = OcrManager()
                 // For PDF, we would need to render the page to bitmap first
                 // This is a simplified implementation
                 Toast.makeText(context, "OCR requires image input. Please use scanner.", Toast.LENGTH_LONG).show()
