@@ -21,6 +21,7 @@ import com.officesuite.app.R
 import com.officesuite.app.data.repository.DocumentConverter
 import com.officesuite.app.databinding.FragmentScannerBinding
 import com.officesuite.app.ocr.OcrManager
+import com.officesuite.app.utils.DocumentBorderDetector
 import com.officesuite.app.utils.FileUtils
 import com.officesuite.app.utils.ImageUtils
 import kotlinx.coroutines.Dispatchers
@@ -40,6 +41,8 @@ class ScannerFragment : Fragment() {
     private val scannedPages = mutableListOf<Bitmap>()
     private val ocrManager = OcrManager()
     private lateinit var documentConverter: DocumentConverter
+    private val borderDetector = DocumentBorderDetector()
+    private var autoBorderEnabled = true
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -140,6 +143,7 @@ class ScannerFragment : Fragment() {
             scannedPages.forEach { it.recycle() }
             scannedPages.clear()
             updatePageCount()
+            binding.borderOverlay.clearCorners()
             Toast.makeText(context, "Cleared all pages", Toast.LENGTH_SHORT).show()
         }
 
@@ -154,6 +158,21 @@ class ScannerFragment : Fragment() {
                 applyContrastEnhancement()
             }
         }
+
+        // Toggle auto border detection
+        binding.textAutoBorderStatus.setOnClickListener {
+            autoBorderEnabled = !autoBorderEnabled
+            updateAutoBorderStatus()
+            Toast.makeText(
+                context, 
+                if (autoBorderEnabled) "Auto border detection enabled" else "Auto border detection disabled",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    private fun updateAutoBorderStatus() {
+        binding.textAutoBorderStatus.text = if (autoBorderEnabled) "Auto Border: ON" else "Auto Border: OFF"
     }
 
     private fun takePhoto() {
@@ -188,7 +207,7 @@ class ScannerFragment : Fragment() {
                 val bitmap = withContext(Dispatchers.IO) {
                     var bmp = BitmapFactory.decodeFile(photoFile.absolutePath)
                     bmp = ImageUtils.rotateBitmapIfNeeded(bmp, photoFile.absolutePath)
-                    // Apply auto border detection (simplified)
+                    // Apply auto border detection and cropping
                     bmp = detectAndCropBorders(bmp)
                     bmp
                 }
@@ -198,7 +217,7 @@ class ScannerFragment : Fragment() {
                 binding.imagePreview.setImageBitmap(bitmap)
                 binding.imagePreview.visibility = View.VISIBLE
                 
-                Toast.makeText(context, "Page captured", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Page captured with auto border detection", Toast.LENGTH_SHORT).show()
                 
                 photoFile.delete()
             } catch (e: Exception) {
@@ -208,37 +227,41 @@ class ScannerFragment : Fragment() {
     }
 
     /**
-     * Detects and crops document borders from the captured image.
-     * 
-     * Note: This is a simplified implementation that applies a basic margin crop.
-     * For production use, consider integrating OpenCV or ML-based edge detection
-     * for more accurate document boundary detection.
-     * 
-     * Current limitations:
-     * - Does not perform actual edge detection
-     * - Only applies a simple 2% margin crop
-     * - May not work well with skewed or rotated documents
+     * Detects and crops document borders from the captured image using edge detection.
+     * Uses the DocumentBorderDetector to find document edges and applies perspective
+     * correction to straighten the document.
      * 
      * @param bitmap The input bitmap to process
-     * @return The cropped bitmap with margins removed
+     * @return The cropped and perspective-corrected bitmap
      */
     private fun detectAndCropBorders(bitmap: Bitmap): Bitmap {
-        val width = bitmap.width
-        val height = bitmap.height
-        
-        // Apply a 2% margin crop as a basic border removal
-        // This is a placeholder for proper edge detection
-        val margin = (minOf(width, height) * 0.02).toInt()
+        if (!autoBorderEnabled) {
+            return bitmap
+        }
         
         return try {
-            Bitmap.createBitmap(
-                bitmap,
-                margin,
-                margin,
-                width - (margin * 2),
-                height - (margin * 2)
-            )
+            // Use the border detector to find document corners
+            val corners = borderDetector.detectBorders(bitmap)
+            
+            if (corners != null && corners.confidence >= 0.3f) {
+                // Crop and apply perspective transform
+                borderDetector.cropDocument(bitmap, corners)
+            } else {
+                // Fallback: apply a small margin crop
+                val width = bitmap.width
+                val height = bitmap.height
+                val margin = (minOf(width, height) * 0.02).toInt()
+                
+                Bitmap.createBitmap(
+                    bitmap,
+                    margin,
+                    margin,
+                    width - (margin * 2),
+                    height - (margin * 2)
+                )
+            }
         } catch (e: Exception) {
+            e.printStackTrace()
             bitmap
         }
     }
@@ -279,14 +302,17 @@ class ScannerFragment : Fragment() {
                     "scan_${System.currentTimeMillis()}.pdf"
                 )
                 
-                val success = withContext(Dispatchers.IO) {
-                    documentConverter.createPdfFromBitmaps(scannedPages, outputFile)
-                }
+                // Create searchable PDF with OCR text for selectable text
+                val success = documentConverter.createSearchablePdfWithOcr(
+                    scannedPages, 
+                    outputFile,
+                    ocrManager
+                )
                 
                 binding.progressBar.visibility = View.GONE
                 
                 if (success) {
-                    Toast.makeText(context, "PDF saved: ${outputFile.name}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, "Searchable PDF saved: ${outputFile.name}", Toast.LENGTH_LONG).show()
                 } else {
                     Toast.makeText(context, "Failed to create PDF", Toast.LENGTH_SHORT).show()
                 }
