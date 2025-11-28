@@ -118,6 +118,53 @@ class PreferencesRepository(context: Context) {
         get() = prefs.getFloat(KEY_TTS_PITCH, 1.0f)
         set(value) = prefs.edit().putFloat(KEY_TTS_PITCH, value).apply()
 
+    // ================== Focus Mode Preferences ==================
+    
+    var isFocusModeEnabled: Boolean
+        get() = prefs.getBoolean(KEY_FOCUS_MODE, false)
+        set(value) = prefs.edit().putBoolean(KEY_FOCUS_MODE, value).apply()
+
+    // ================== Word Count Goals ==================
+    
+    var wordCountGoal: Int
+        get() = prefs.getInt(KEY_WORD_COUNT_GOAL, 0)
+        set(value) = prefs.edit().putInt(KEY_WORD_COUNT_GOAL, value).apply()
+
+    var dailyWordCountProgress: Int
+        get() = prefs.getInt(KEY_DAILY_WORD_COUNT, 0)
+        set(value) = prefs.edit().putInt(KEY_DAILY_WORD_COUNT, value).apply()
+
+    var lastWordCountDate: String
+        get() = prefs.getString(KEY_LAST_WORD_COUNT_DATE, "") ?: ""
+        set(value) = prefs.edit().putString(KEY_LAST_WORD_COUNT_DATE, value).apply()
+
+    // ================== Accessibility Preferences ==================
+    
+    var isReadingRulerEnabled: Boolean
+        get() = prefs.getBoolean(KEY_READING_RULER, false)
+        set(value) = prefs.edit().putBoolean(KEY_READING_RULER, value).apply()
+
+    var isDyslexiaFontEnabled: Boolean
+        get() = prefs.getBoolean(KEY_DYSLEXIA_FONT, false)
+        set(value) = prefs.edit().putBoolean(KEY_DYSLEXIA_FONT, value).apply()
+
+    var colorBlindMode: ColorBlindMode
+        get() {
+            val ordinal = prefs.getInt(KEY_COLOR_BLIND_MODE, ColorBlindMode.NONE.ordinal)
+            return ColorBlindMode.values().getOrElse(ordinal) { ColorBlindMode.NONE }
+        }
+        set(value) = prefs.edit().putInt(KEY_COLOR_BLIND_MODE, value.ordinal).apply()
+
+    // ================== Writing Tools Preferences ==================
+    
+    var isTypewriterModeEnabled: Boolean
+        get() = prefs.getBoolean(KEY_TYPEWRITER_MODE, false)
+        set(value) = prefs.edit().putBoolean(KEY_TYPEWRITER_MODE, value).apply()
+
+    var showReadingTimeEstimate: Boolean
+        get() = prefs.getBoolean(KEY_SHOW_READING_TIME, true)
+        set(value) = prefs.edit().putBoolean(KEY_SHOW_READING_TIME, value).apply()
+
     companion object {
         private const val PREFS_NAME = "office_suite_prefs"
         private const val KEY_FAVORITES = "favorites"
@@ -129,6 +176,15 @@ class PreferencesRepository(context: Context) {
         private const val KEY_AUTO_SAVE_INTERVAL = "auto_save_interval"
         private const val KEY_TTS_SPEED = "tts_speed"
         private const val KEY_TTS_PITCH = "tts_pitch"
+        private const val KEY_FOCUS_MODE = "focus_mode"
+        private const val KEY_WORD_COUNT_GOAL = "word_count_goal"
+        private const val KEY_DAILY_WORD_COUNT = "daily_word_count"
+        private const val KEY_LAST_WORD_COUNT_DATE = "last_word_count_date"
+        private const val KEY_READING_RULER = "reading_ruler"
+        private const val KEY_DYSLEXIA_FONT = "dyslexia_font"
+        private const val KEY_COLOR_BLIND_MODE = "color_blind_mode"
+        private const val KEY_TYPEWRITER_MODE = "typewriter_mode"
+        private const val KEY_SHOW_READING_TIME = "show_reading_time"
     }
 }
 
@@ -152,4 +208,11 @@ enum class FontSize(val scaleFactor: Float) {
     MEDIUM(1.0f),
     LARGE(1.15f),
     EXTRA_LARGE(1.3f)
+}
+
+enum class ColorBlindMode {
+    NONE,
+    PROTANOPIA,      // Red-blind
+    DEUTERANOPIA,    // Green-blind  
+    TRITANOPIA       // Blue-blind
 }
