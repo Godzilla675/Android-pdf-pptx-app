@@ -257,8 +257,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/focus_mode"
-                            android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
-                            android:textColor="@color/on_surface" />
+                            android:textAppearance="@style/TextAppearance.Material3.TitleSmall" />
 
                         <TextView
                             android:layout_width="wrap_content"
