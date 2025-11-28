@@ -1,45 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#1976D2</color>
-    <color name="primary_dark">#1565C0</color>
-    <color name="primary_light">#42A5F5</color>
-    <color name="secondary">#FF5722</color>
-    <color name="secondary_dark">#E64A19</color>
-    <color name="secondary_light">#FF8A65</color>
+    <!-- Material 3 Primary Colors - Modern Blue -->
+    <color name="primary">#0061A4</color>
+    <color name="primary_dark">#004B7F</color>
+    <color name="primary_light">#D1E4FF</color>
+    <color name="on_primary">#FFFFFF</color>
+    <color name="primary_container">#D1E4FF</color>
+    <color name="on_primary_container">#001D36</color>
     
+    <!-- Material 3 Secondary Colors - Teal Accent -->
+    <color name="secondary">#006A60</color>
+    <color name="secondary_dark">#00504A</color>
+    <color name="secondary_light">#70F7EA</color>
+    <color name="on_secondary">#FFFFFF</color>
+    <color name="secondary_container">#70F7EA</color>
+    <color name="on_secondary_container">#00201C</color>
+    
+    <!-- Material 3 Tertiary Colors -->
+    <color name="tertiary">#7D5260</color>
+    <color name="on_tertiary">#FFFFFF</color>
+    <color name="tertiary_container">#FFD8E4</color>
+    <color name="on_tertiary_container">#31111D</color>
+    
+    <!-- Neutral Colors -->
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
-    <color name="gray">#9E9E9E</color>
-    <color name="light_gray">#F5F5F5</color>
-    <color name="dark_gray">#616161</color>
+    <color name="gray">#74777F</color>
+    <color name="light_gray">#F1F0F4</color>
+    <color name="dark_gray">#44474E</color>
     
-    <color name="pdf_color">#E53935</color>
-    <color name="docx_color">#1976D2</color>
-    <color name="pptx_color">#FF5722</color>
-    <color name="xlsx_color">#4CAF50</color>
-    <color name="md_color">#795548</color>
+    <!-- File Type Colors - Modern Palette -->
+    <color name="pdf_color">#D93025</color>
+    <color name="docx_color">#2B579A</color>
+    <color name="pptx_color">#D24726</color>
+    <color name="xlsx_color">#217346</color>
+    <color name="md_color">#6D4C41</color>
     
-    <color name="background_light">#FAFAFA</color>
-    <color name="surface_light">#FFFFFF</color>
-    <color name="text_primary">#212121</color>
-    <color name="text_secondary">#757575</color>
+    <!-- Material 3 Surface Colors -->
+    <color name="background_light">#FDFCFF</color>
+    <color name="surface_light">#FDFCFF</color>
+    <color name="surface_container_low">#F3F3F6</color>
+    <color name="surface_container">#ECEDF1</color>
+    <color name="surface_container_high">#E6E6EA</color>
+    <color name="surface_variant">#DFE2EB</color>
+    <color name="on_surface">#1A1C1E</color>
+    <color name="on_surface_variant">#43474E</color>
+    <color name="text_primary">#1A1C1E</color>
+    <color name="text_secondary">#43474E</color>
     
     <!-- Chip colors -->
-    <color name="chip_selected">#1976D2</color>
-    <color name="chip_unselected">#424242</color>
+    <color name="chip_selected">#0061A4</color>
+    <color name="chip_unselected">#44474E</color>
+    
     <!-- Reading mode (sepia) colors -->
-    <color name="reading_mode_bg">#F5F1E8</color>
+    <color name="reading_mode_bg">#FFF8F0</color>
     <color name="reading_mode_text">#5B4636</color>
     
-    <!-- Dark mode colors -->
-    <color name="background_dark">#121212</color>
-    <color name="surface_dark">#1E1E1E</color>
-    <color name="text_primary_dark">#E1E1E1</color>
-    <color name="text_secondary_dark">#B3B3B3</color>
+    <!-- Dark mode colors - Material 3 -->
+    <color name="background_dark">#1A1C1E</color>
+    <color name="surface_dark">#1A1C1E</color>
+    <color name="surface_container_dark">#212427</color>
+    <color name="surface_variant_dark">#43474E</color>
+    <color name="text_primary_dark">#E2E2E6</color>
+    <color name="text_secondary_dark">#C3C6CF</color>
+    <color name="primary_dark_theme">#9ECAFF</color>
+    <color name="on_primary_dark">#003258</color>
     
-    <!-- Status colors -->
-    <color name="colorPrimary">#1976D2</color>
-    <color name="error">#B00020</color>
-    <color name="warning">#FFC107</color>
+    <!-- Status colors - Material 3 -->
+    <color name="colorPrimary">#0061A4</color>
+    <color name="error">#BA1A1A</color>
+    <color name="error_container">#FFDAD6</color>
+    <color name="on_error">#FFFFFF</color>
+    <color name="on_error_container">#410002</color>
+    <color name="warning">#FFB74D</color>
     <color name="success">#4CAF50</color>
+    
+    <!-- Outline Colors -->
+    <color name="outline">#73777F</color>
+    <color name="outline_variant">#C3C6CF</color>
+    
+    <!-- Scrim -->
+    <color name="scrim">#000000</color>
+    
+    <!-- Gradient colors -->
+    <color name="gradient_start">#0061A4</color>
+    <color name="gradient_end">#006A60</color>
 </resources>
