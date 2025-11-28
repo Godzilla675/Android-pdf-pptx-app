@@ -384,13 +384,19 @@ class DigitalWellbeingManager(private val context: Context) {
     
     private fun getTodayKey(): String {
         val cal = Calendar.getInstance()
-        return "${cal.get(Calendar.YEAR)}-${cal.get(Calendar.DAY_OF_YEAR)}"
+        // Use explicit format: YYYY-MM-DD for clarity and no ambiguity
+        val month = String.format("%02d", cal.get(Calendar.MONTH) + 1)
+        val day = String.format("%02d", cal.get(Calendar.DAY_OF_MONTH))
+        return "${cal.get(Calendar.YEAR)}-$month-$day"
     }
     
     private fun getDayKey(daysAgo: Int): String {
         val cal = Calendar.getInstance()
         cal.add(Calendar.DAY_OF_YEAR, -daysAgo)
-        return "${cal.get(Calendar.YEAR)}-${cal.get(Calendar.DAY_OF_YEAR)}"
+        // Use explicit format: YYYY-MM-DD for clarity and no ambiguity
+        val month = String.format("%02d", cal.get(Calendar.MONTH) + 1)
+        val day = String.format("%02d", cal.get(Calendar.DAY_OF_MONTH))
+        return "${cal.get(Calendar.YEAR)}-$month-$day"
     }
     
     companion object {

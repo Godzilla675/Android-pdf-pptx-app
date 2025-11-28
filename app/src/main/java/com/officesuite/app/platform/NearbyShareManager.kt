@@ -188,9 +188,9 @@ class NearbyShareManager(private val context: Context) {
     fun getRecentShares(): List<RecentShare> {
         val json = prefs.getString(KEY_RECENT_SHARES, null) ?: return emptyList()
         return try {
-            // Parse JSON to list of RecentShare
-            // For simplicity, returning empty list - in production use Gson
-            emptyList()
+            val gson = com.google.gson.Gson()
+            val type = object : com.google.gson.reflect.TypeToken<List<RecentShare>>() {}.type
+            gson.fromJson(json, type) ?: emptyList()
         } catch (e: Exception) {
             emptyList()
         }
@@ -206,8 +206,9 @@ class NearbyShareManager(private val context: Context) {
         // Keep only last 10 shares
         val trimmed = current.take(10)
         
-        // Save to preferences - in production use Gson
-        prefs.edit().putString(KEY_RECENT_SHARES, "[]").apply()
+        // Save to preferences using Gson
+        val gson = com.google.gson.Gson()
+        prefs.edit().putString(KEY_RECENT_SHARES, gson.toJson(trimmed)).apply()
     }
     
     /**

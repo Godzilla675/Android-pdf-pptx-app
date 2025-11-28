@@ -6,7 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.officesuite.app.R
 import com.officesuite.app.databinding.FragmentPlatformFeaturesBinding
 import com.officesuite.app.platform.DesktopModeManager
@@ -68,8 +70,7 @@ class PlatformFeaturesFragment : Fragment() {
     private fun setupToolbar() {
         binding.toolbar.apply {
             setNavigationOnClickListener {
-                @Suppress("DEPRECATION")
-                requireActivity().onBackPressed()
+                findNavController().navigateUp()
             }
             title = getString(R.string.platform_features)
         }
