@@ -36,4 +36,25 @@
     <color name="surface_dark">#1E1E1E</color>
     <color name="text_primary_dark">#E1E1E1</color>
     <color name="text_secondary_dark">#B3B3B3</color>
+    
+    <!-- Focus mode colors -->
+    <color name="focus_mode_bg">#FAFAFA</color>
+    <color name="focus_mode_sepia">#F5E6D3</color>
+    <color name="focus_mode_night">#1A1A2E</color>
+    <color name="focus_mode_highlight">#FFFDE7</color>
+    
+    <!-- Goal progress colors -->
+    <color name="goal_complete">#4CAF50</color>
+    <color name="goal_progress_75">#8BC34A</color>
+    <color name="goal_progress_50">#FFC107</color>
+    <color name="goal_progress_25">#FF9800</color>
+    <color name="goal_progress_low">#F44336</color>
+    
+    <!-- Reading ruler colors -->
+    <color name="reading_ruler_overlay">#CC000000</color>
+    <color name="reading_ruler_border">#4CAF50</color>
+    
+    <!-- Accessibility colors -->
+    <color name="high_contrast_bg">#000000</color>
+    <color name="high_contrast_text">#FFFFFF</color>
 </resources>

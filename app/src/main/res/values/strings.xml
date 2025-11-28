@@ -395,4 +395,78 @@
     <string name="annotations_saved">Annotations saved</string>
     <string name="document_saved">Document saved</string>
     <string name="presentation_saved">Presentation saved</string>
+    
+    <!-- Document Statistics (Medium Priority) -->
+    <string name="document_statistics">Document Statistics</string>
+    <string name="reading_time">Reading Time</string>
+    <string name="speaking_time">Speaking Time</string>
+    <string name="basic_counts">Basic Counts</string>
+    <string name="words">Words</string>
+    <string name="characters">Characters</string>
+    <string name="sentences">Sentences</string>
+    <string name="paragraphs">Paragraphs</string>
+    <string name="lines">Lines</string>
+    <string name="chars_no_spaces">Chars (no spaces)</string>
+    <string name="readability">Readability</string>
+    <string name="flesch_reading_ease">Flesch Reading Ease</string>
+    <string name="grade_level">Grade Level</string>
+    <string name="readability_level">Readability Level</string>
+    <string name="avg_words_per_sentence">Avg Words/Sentence</string>
+    
+    <!-- Focus Mode (Medium Priority) -->
+    <string name="focus_mode">Focus Mode</string>
+    <string name="focus_mode_enabled">Focus mode enabled</string>
+    <string name="focus_mode_disabled">Focus mode disabled</string>
+    <string name="typewriter_mode">Typewriter Mode</string>
+    <string name="highlight_current_line">Highlight Current Line</string>
+    <string name="dim_inactive_text">Dim Inactive Text</string>
+    
+    <!-- Word Count Goals (Medium Priority) -->
+    <string name="word_count_goal">Word Count Goal</string>
+    <string name="daily_goal">Daily Goal</string>
+    <string name="session_goal">Session Goal</string>
+    <string name="document_goal">Document Goal</string>
+    <string name="set_goal">Set Goal</string>
+    <string name="goal_progress">Goal Progress</string>
+    <string name="words_written">%1$d words written</string>
+    <string name="words_remaining">%1$d words remaining</string>
+    <string name="goal_complete">Goal complete! 🎉</string>
+    <string name="writing_streak">Writing Streak</string>
+    <string name="days_streak">%1$d day streak</string>
+    
+    <!-- Quick Notes Widget (Medium Priority) -->
+    <string name="quick_notes">Quick Notes</string>
+    <string name="quick_notes_widget">Quick Notes Widget</string>
+    <string name="quick_notes_widget_description">Quickly capture notes, voice memos, photos, and checklists</string>
+    <string name="new_note">New Note</string>
+    <string name="note">Note</string>
+    <string name="voice_note">Voice Note</string>
+    <string name="voice">Voice</string>
+    <string name="photo_note">Photo Note</string>
+    <string name="photo">Photo</string>
+    <string name="checklist">Checklist</string>
+    
+    <!-- Accessibility Features (Medium Priority) -->
+    <string name="accessibility_settings">Accessibility</string>
+    <string name="dyslexia_font">Dyslexia-Friendly Font</string>
+    <string name="dyslexia_font_description">Use OpenDyslexic font for easier reading</string>
+    <string name="color_blind_mode">Color Blind Mode</string>
+    <string name="color_blind_none">None</string>
+    <string name="color_blind_protanopia">Protanopia (Red-Blind)</string>
+    <string name="color_blind_deuteranopia">Deuteranopia (Green-Blind)</string>
+    <string name="color_blind_tritanopia">Tritanopia (Blue-Blind)</string>
+    <string name="color_blind_monochromacy">Monochromacy</string>
+    <string name="reading_ruler">Reading Ruler</string>
+    <string name="reading_ruler_description">Visual guide for line-by-line reading</string>
+    <string name="high_contrast">High Contrast</string>
+    <string name="reduce_motion">Reduce Motion</string>
+    <string name="large_touch_targets">Large Touch Targets</string>
+    <string name="line_spacing">Line Spacing</string>
+    <string name="letter_spacing">Letter Spacing</string>
+    
+    <!-- Line Spacing Options -->
+    <string name="line_spacing_compact">Compact</string>
+    <string name="line_spacing_normal">Normal</string>
+    <string name="line_spacing_relaxed">Relaxed</string>
+    <string name="line_spacing_extra_relaxed">Extra Relaxed</string>
 </resources>

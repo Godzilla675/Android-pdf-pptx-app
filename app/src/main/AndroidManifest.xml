@@ -166,6 +166,23 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_quick_actions_info" />
         </receiver>
+        
+        <!-- Quick Notes Widget -->
+        <receiver
+            android:name=".widget.QuickNotesWidget"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.officesuite.app.ACTION_NEW_NOTE" />
+                <action android:name="com.officesuite.app.ACTION_VOICE_NOTE" />
+                <action android:name="com.officesuite.app.ACTION_PHOTO_NOTE" />
+                <action android:name="com.officesuite.app.ACTION_CHECKLIST_NOTE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_quick_notes_info" />
+        </receiver>
+        
         <!-- Presentation Mode Activity -->
         <activity
             android:name=".ui.pptx.PresentationModeActivity"

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ReadingRulerView attributes -->
+    <declare-styleable name="ReadingRulerView">
+        <attr name="rulerHeight" format="dimension" />
+        <attr name="overlayOpacity" format="float" />
+        <attr name="showBorder" format="boolean" />
+        <attr name="borderColor" format="color" />
+    </declare-styleable>
+    
+    <!-- GoalProgressView attributes -->
+    <declare-styleable name="GoalProgressView">
+        <attr name="progressColor" format="color" />
+        <attr name="backgroundTrackColor" format="color" />
+        <attr name="strokeWidth" format="dimension" />
+        <attr name="showText" format="boolean" />
+    </declare-styleable>
+</resources>
