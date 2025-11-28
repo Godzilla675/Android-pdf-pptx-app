@@ -26,7 +26,7 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipDocument"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
+                style="@style/Widget.Material3.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/scan_mode_document"
@@ -36,7 +36,7 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipQrCode"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
+                style="@style/Widget.Material3.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/scan_mode_qr"
@@ -45,7 +45,7 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipBusinessCard"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
+                style="@style/Widget.Material3.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/scan_mode_business_card"
@@ -54,7 +54,7 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipIdDocument"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
+                style="@style/Widget.Material3.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/scan_mode_id"
@@ -63,7 +63,7 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipReceipt"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
+                style="@style/Widget.Material3.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/scan_mode_receipt"
@@ -159,8 +159,9 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:visibility="gone"
-        app:cardCornerRadius="12dp"
-        app:cardBackgroundColor="#E0FFFFFF"
+        app:cardCornerRadius="16dp"
+        app:cardBackgroundColor="@color/surface_container"
+        app:cardElevation="0dp"
         app:layout_constraintBottom_toTopOf="@id/controlsLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -176,17 +177,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Scan Result"
-                android:textColor="@color/text_primary"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
 
             <TextView
                 android:id="@+id/textScanResultContent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:textColor="@color/text_secondary"
-                android:textSize="14sp" />
+                android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                android:textColor="@color/on_surface_variant" />
 
             <LinearLayout
                 android:id="@+id/layoutScanResultActions"
@@ -198,14 +197,14 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnCopyResult"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    style="@style/Widget.Material3.Button.TextButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/copy_content" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnActionResult"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    style="@style/Widget.Material3.Button.TextButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/open"
@@ -235,8 +234,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="12dp"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
             android:textColor="@color/white"
-            android:textSize="14sp"
             android:visibility="gone" />
 
     </ScrollView>
