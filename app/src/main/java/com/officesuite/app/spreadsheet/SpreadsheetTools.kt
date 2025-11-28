@@ -100,15 +100,6 @@ class SpreadsheetTools(private val context: Context) {
             
             val cfRule = when (rule.type) {
                 FormatType.CELL_VALUE -> {
-                    val operator = when (rule.operator) {
-                        ComparisonOperator.EQUAL -> ComparisonOperator.EQUAL
-                        ComparisonOperator.NOT_EQUAL -> ComparisonOperator.NOT_EQUAL
-                        ComparisonOperator.GREATER_THAN -> ComparisonOperator.GREATER_THAN
-                        ComparisonOperator.LESS_THAN -> ComparisonOperator.LESS_THAN
-                        ComparisonOperator.GREATER_OR_EQUAL -> ComparisonOperator.GREATER_OR_EQUAL
-                        ComparisonOperator.LESS_OR_EQUAL -> ComparisonOperator.LESS_OR_EQUAL
-                        ComparisonOperator.BETWEEN -> ComparisonOperator.BETWEEN
-                    }
                     sheetCF.createConditionalFormattingRule(
                         getComparisonOperator(rule.operator),
                         rule.value1,

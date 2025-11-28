@@ -507,10 +507,10 @@ class PresentationTools(private val context: Context) {
         file: File,
         width: Int = 200,
         height: Int = 150
-    ): List<SlideThumnail> = withContext(Dispatchers.IO) {
+    ): List<SlideThumbnail> = withContext(Dispatchers.IO) {
         try {
             val ppt = XMLSlideShow(FileInputStream(file))
-            val thumbnails = mutableListOf<SlideThumnail>()
+            val thumbnails = mutableListOf<SlideThumbnail>()
             
             ppt.slides.forEachIndexed { index, slide ->
                 // Get slide title if available
@@ -529,7 +529,7 @@ class PresentationTools(private val context: Context) {
                 
                 val hasNotes = slide.notes != null
                 
-                thumbnails.add(SlideThumnail(
+                thumbnails.add(SlideThumbnail(
                     index = index,
                     title = title.take(50),
                     textPreview = textPreview.take(150),
@@ -546,7 +546,7 @@ class PresentationTools(private val context: Context) {
         }
     }
 
-    data class SlideThumnail(
+    data class SlideThumbnail(
         val index: Int,
         val title: String,
         val textPreview: String,
