@@ -160,12 +160,21 @@ enum class LineSpacing(val multiplier: Float, val displayName: String) {
 }
 
 /**
- * Color transformation utilities for color blind simulation
+ * Color transformation utilities for color blind simulation.
+ * 
+ * Color transformation matrices are based on the Brettel, Viénot, and Mollon (1997) algorithm
+ * for simulating color blindness. These are approximations of how colors appear to people
+ * with various types of color vision deficiency.
+ * 
+ * Reference: "Computerized simulation of color appearance for dichromats"
+ * Brettel H, Viénot F, Mollon JD (1997), J Opt Soc Am A 14:2647-2655
  */
 object ColorBlindTransform {
     
     /**
-     * Transform color for protanopia (red-blind)
+     * Transform color for protanopia (red-blind).
+     * Protanopia affects about 1% of males and results in inability to perceive red light.
+     * The L-cone (long wavelength, red) is missing or defective.
      */
     fun transformProtanopia(color: Int): Int {
         val r = (color shr 16) and 0xFF
@@ -173,7 +182,8 @@ object ColorBlindTransform {
         val b = color and 0xFF
         val a = (color shr 24) and 0xFF
         
-        // Protanopia transformation matrix
+        // Protanopia transformation matrix (Brettel et al. 1997)
+        // Simulates missing L-cone by mapping red channel to other cones
         val newR = (0.567 * r + 0.433 * g + 0.0 * b).toInt().coerceIn(0, 255)
         val newG = (0.558 * r + 0.442 * g + 0.0 * b).toInt().coerceIn(0, 255)
         val newB = (0.0 * r + 0.242 * g + 0.758 * b).toInt().coerceIn(0, 255)
@@ -182,7 +192,9 @@ object ColorBlindTransform {
     }
     
     /**
-     * Transform color for deuteranopia (green-blind)
+     * Transform color for deuteranopia (green-blind).
+     * Deuteranopia affects about 1% of males and results in inability to perceive green light.
+     * The M-cone (medium wavelength, green) is missing or defective.
      */
     fun transformDeuteranopia(color: Int): Int {
         val r = (color shr 16) and 0xFF
@@ -190,7 +202,8 @@ object ColorBlindTransform {
         val b = color and 0xFF
         val a = (color shr 24) and 0xFF
         
-        // Deuteranopia transformation matrix
+        // Deuteranopia transformation matrix (Brettel et al. 1997)
+        // Simulates missing M-cone by mapping green channel to other cones
         val newR = (0.625 * r + 0.375 * g + 0.0 * b).toInt().coerceIn(0, 255)
         val newG = (0.7 * r + 0.3 * g + 0.0 * b).toInt().coerceIn(0, 255)
         val newB = (0.0 * r + 0.3 * g + 0.7 * b).toInt().coerceIn(0, 255)
@@ -199,7 +212,9 @@ object ColorBlindTransform {
     }
     
     /**
-     * Transform color for tritanopia (blue-blind)
+     * Transform color for tritanopia (blue-blind).
+     * Tritanopia is rare (affects ~0.001% of population) and results in inability to perceive blue light.
+     * The S-cone (short wavelength, blue) is missing or defective.
      */
     fun transformTritanopia(color: Int): Int {
         val r = (color shr 16) and 0xFF
@@ -207,7 +222,8 @@ object ColorBlindTransform {
         val b = color and 0xFF
         val a = (color shr 24) and 0xFF
         
-        // Tritanopia transformation matrix
+        // Tritanopia transformation matrix (Brettel et al. 1997)
+        // Simulates missing S-cone by mapping blue channel to other cones
         val newR = (0.95 * r + 0.05 * g + 0.0 * b).toInt().coerceIn(0, 255)
         val newG = (0.0 * r + 0.433 * g + 0.567 * b).toInt().coerceIn(0, 255)
         val newB = (0.0 * r + 0.475 * g + 0.525 * b).toInt().coerceIn(0, 255)
@@ -216,7 +232,9 @@ object ColorBlindTransform {
     }
     
     /**
-     * Transform color to monochrome (grayscale)
+     * Transform color to monochrome (grayscale).
+     * Simulates complete color blindness (achromatopsia/monochromacy).
+     * Uses ITU-R BT.601 luma coefficients (0.299R + 0.587G + 0.114B).
      */
     fun transformMonochromacy(color: Int): Int {
         val r = (color shr 16) and 0xFF
@@ -224,7 +242,8 @@ object ColorBlindTransform {
         val b = color and 0xFF
         val a = (color shr 24) and 0xFF
         
-        // Standard luminosity formula
+        // ITU-R BT.601 standard luminosity formula for perceived brightness
+        // Weights account for human eye's varying sensitivity to different wavelengths
         val gray = (0.299 * r + 0.587 * g + 0.114 * b).toInt().coerceIn(0, 255)
         
         return (a shl 24) or (gray shl 16) or (gray shl 8) or gray

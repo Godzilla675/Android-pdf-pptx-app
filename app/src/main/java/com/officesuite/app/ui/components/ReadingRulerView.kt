@@ -7,6 +7,7 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import androidx.core.content.ContextCompat
 import com.officesuite.app.R
 
 /**
@@ -23,6 +24,9 @@ class ReadingRulerView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
+    // Default border color from resources
+    private val defaultBorderColor = ContextCompat.getColor(context, R.color.reading_ruler_border)
+    
     private val overlayPaint = Paint().apply {
         color = Color.BLACK
         style = Paint.Style.FILL
@@ -34,7 +38,7 @@ class ReadingRulerView @JvmOverloads constructor(
     }
     
     private val borderPaint = Paint().apply {
-        color = Color.parseColor("#4CAF50")
+        color = defaultBorderColor
         style = Paint.Style.STROKE
         strokeWidth = 2f
     }
@@ -71,7 +75,7 @@ class ReadingRulerView @JvmOverloads constructor(
         }
     
     // Border color
-    var borderColor: Int = Color.parseColor("#4CAF50")
+    var borderColor: Int = defaultBorderColor
         set(value) {
             field = value
             borderPaint.color = value

@@ -2,6 +2,9 @@ package com.officesuite.app.utils
 
 import android.content.Context
 import android.content.SharedPreferences
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 /**
  * Focus Mode Manager for distraction-free writing.
@@ -12,6 +15,9 @@ import android.content.SharedPreferences
 class FocusModeManager(context: Context) {
     
     private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    
+    // Date formatter for tracking daily progress
+    private val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.US)
     
     // ================== Focus Mode ==================
     
@@ -56,8 +62,7 @@ class FocusModeManager(context: Context) {
     var todayWordCount: Int
         get() {
             val savedDate = prefs.getString(KEY_TODAY_DATE, "")
-            val today = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
-                .format(java.util.Date())
+            val today = getTodayDateString()
             
             // Reset if it's a new day
             if (savedDate != today) {
@@ -71,13 +76,22 @@ class FocusModeManager(context: Context) {
             return prefs.getInt(KEY_TODAY_WORD_COUNT, 0)
         }
         set(value) {
-            val today = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
-                .format(java.util.Date())
             prefs.edit()
-                .putString(KEY_TODAY_DATE, today)
+                .putString(KEY_TODAY_DATE, getTodayDateString())
                 .putInt(KEY_TODAY_WORD_COUNT, value.coerceAtLeast(0))
                 .apply()
         }
+    
+    /**
+     * Get today's date as a formatted string
+     */
+    private fun getTodayDateString(): String = dateFormatter.format(Date())
+    
+    /**
+     * Get yesterday's date as a formatted string
+     */
+    private fun getYesterdayDateString(): String = 
+        dateFormatter.format(Date(System.currentTimeMillis() - 24 * 60 * 60 * 1000))
     
     // Track session progress (resets each time the app opens)
     private var sessionStartWordCount: Int = 0
@@ -150,10 +164,8 @@ class FocusModeManager(context: Context) {
     fun updateWritingStreak() {
         if (dailyWordGoal > 0 && todayWordCount >= dailyWordGoal) {
             val lastStreakDate = prefs.getString(KEY_LAST_STREAK_DATE, "")
-            val today = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
-                .format(java.util.Date())
-            val yesterday = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
-                .format(java.util.Date(System.currentTimeMillis() - 24 * 60 * 60 * 1000))
+            val today = getTodayDateString()
+            val yesterday = getYesterdayDateString()
             
             val currentStreak = getWritingStreak()
             

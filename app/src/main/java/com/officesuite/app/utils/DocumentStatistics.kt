@@ -12,8 +12,10 @@ object DocumentStatistics {
     
     // Average reading speed in words per minute
     private const val AVERAGE_READING_SPEED_WPM = 200
-    private const val FAST_READING_SPEED_WPM = 300
-    private const val SLOW_READING_SPEED_WPM = 150
+    
+    // Reading speed options for different reading styles
+    const val FAST_READING_SPEED_WPM = 300
+    const val SLOW_READING_SPEED_WPM = 150
     
     /**
      * Calculate comprehensive document statistics
