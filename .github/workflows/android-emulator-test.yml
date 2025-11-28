@@ -69,63 +69,7 @@ jobs:
           target: google_apis
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
           disable-animations: true
-          script: |
-            echo "=== Emulator Ready ===" 
-            echo ""
-            echo "=== APK Package Info ==="
-            echo "Package: $PACKAGE_NAME"
-            echo "Activity: $LAUNCHABLE_ACTIVITY"
-            echo ""
-            echo "=== Installing APK ==="
-            adb install -r app/build/outputs/apk/debug/app-debug.apk
-            INSTALL_RESULT=$?
-            echo "Install exit code: $INSTALL_RESULT"
-            echo ""
-            
-            if [ $INSTALL_RESULT -eq 0 ]; then
-              echo "=== APK Installation Successful ===" 
-              
-              echo ""
-              echo "=== Launching App ==="
-              adb shell am start -n "$PACKAGE_NAME/$LAUNCHABLE_ACTIVITY"
-              LAUNCH_RESULT=$?
-              echo "Launch exit code: $LAUNCH_RESULT"
-              
-              sleep 5
-              
-              echo ""
-              echo "=== Checking if app is running ==="
-              adb shell pidof "$PACKAGE_NAME"
-              APP_PID=$?
-              
-              if [ $APP_PID -eq 0 ]; then
-                echo "App is running successfully!"
-                echo "RESULT=success" >> $GITHUB_ENV
-                echo "TEST_MESSAGE=✅ APK installation and launch successful on Android emulator (API 30, x86_64)" >> $GITHUB_ENV
-              else
-                echo "App launched but may have crashed"
-                echo "RESULT=partial" >> $GITHUB_ENV
-                echo "TEST_MESSAGE=⚠️ APK installed but app may have crashed after launch" >> $GITHUB_ENV
-              fi
-            else
-              echo "=== APK Installation Failed ==="
-              echo "RESULT=failed" >> $GITHUB_ENV
-              echo "TEST_MESSAGE=❌ APK installation failed on Android emulator" >> $GITHUB_ENV
-            fi
-            
-            echo ""
-            echo "=== Package Info ==="
-            adb shell pm list packages | grep "package:$PACKAGE_NAME" || echo "Package not found in installed packages"
-            
-            echo ""
-            echo "=== APK Analysis ==="
-            # Find aapt in Android SDK
-            AAPT_CMD=$(find "$ANDROID_SDK_ROOT/build-tools" -name "aapt" 2>/dev/null | head -1)
-            if [ -n "$AAPT_CMD" ]; then
-              "$AAPT_CMD" dump badging app/build/outputs/apk/debug/app-debug.apk | head -20
-            else
-              echo "Could not analyze APK - aapt not found"
-            fi
+          script: ./scripts/emulator-test.sh
 
       - name: Comment test results on PR
         if: always()
