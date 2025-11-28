@@ -224,7 +224,7 @@ class DocxViewerFragment : Fragment() {
             for (element in bodyElements) {
                 when (element) {
                     is org.apache.poi.xwpf.usermodel.XWPFParagraph -> {
-                        val paragraphHtml = processParagraph(element, pictureMap)
+                        val paragraphHtml = processParagraph(element)
                         if (paragraphHtml.isNotEmpty()) {
                             htmlBuilder.append(paragraphHtml)
                         }
@@ -245,7 +245,7 @@ class DocxViewerFragment : Fragment() {
         return htmlBuilder.toString()
     }
 
-    private fun processParagraph(paragraph: org.apache.poi.xwpf.usermodel.XWPFParagraph, pictureMap: Map<String, String>): String {
+    private fun processParagraph(paragraph: org.apache.poi.xwpf.usermodel.XWPFParagraph): String {
         val builder = StringBuilder()
         val paragraphText = StringBuilder()
         

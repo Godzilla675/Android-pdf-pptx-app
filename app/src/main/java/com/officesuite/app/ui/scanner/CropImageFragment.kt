@@ -57,13 +57,11 @@ class CropImageFragment : Fragment() {
         binding.btnCrop.setOnClickListener {
             // Apply crop and return
             Toast.makeText(context, "Crop applied", Toast.LENGTH_SHORT).show()
-            @Suppress("DEPRECATION")
-            requireActivity().onBackPressed()
+            requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
         binding.btnCancel.setOnClickListener {
-            @Suppress("DEPRECATION")
-            requireActivity().onBackPressed()
+            requireActivity().onBackPressedDispatcher.onBackPressed()
         }
     }
 

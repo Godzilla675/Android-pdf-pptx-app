@@ -30,7 +30,9 @@ class AnnotationView @JvmOverloads constructor(
         val text: String? = null,
         val textPosition: PointF? = null,
         val startPoint: PointF? = null,
-        val endPoint: PointF? = null
+        val endPoint: PointF? = null,
+        val bitmap: Bitmap? = null,
+        val bitmapPosition: RectF? = null
     )
 
     private val annotations = mutableListOf<Annotation>()
@@ -148,6 +150,18 @@ class AnnotationView @JvmOverloads constructor(
         onAnnotationChangeListener?.invoke()
     }
 
+    fun addImageAnnotation(bitmap: Bitmap, x: Float, y: Float) {
+        annotations.add(Annotation(
+            paint = Paint(),
+            bitmap = bitmap,
+            bitmapPosition = RectF(x, y, x + bitmap.width, y + bitmap.height),
+            shapeType = Tool.NONE
+        ))
+        redoStack.clear()
+        invalidate()
+        onAnnotationChangeListener?.invoke()
+    }
+
     fun addTextAnnotation(text: String, x: Float, y: Float) {
         val paint = createTextPaint()
         annotations.add(Annotation(
@@ -197,6 +211,9 @@ class AnnotationView @JvmOverloads constructor(
                 }
                 annotation.startPoint != null && annotation.endPoint != null -> {
                     drawLineOrArrow(canvas, annotation.shapeType, annotation.startPoint, annotation.endPoint, annotation.paint)
+                }
+                annotation.bitmap != null && annotation.bitmapPosition != null -> {
+                    canvas.drawBitmap(annotation.bitmap, null, annotation.bitmapPosition, null)
                 }
             }
         }

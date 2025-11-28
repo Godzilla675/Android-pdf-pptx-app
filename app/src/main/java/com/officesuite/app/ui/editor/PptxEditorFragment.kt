@@ -237,8 +237,36 @@ class PptxEditorFragment : Fragment() {
     }
 
     private fun handleImageSelected(uri: Uri) {
-        Toast.makeText(context, "Image selected - inserting into slide", Toast.LENGTH_SHORT).show()
-        // In a full implementation, this would add the image to the annotation layer
+        // Load image from URI and add to annotation view
+        try {
+            val bitmap = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                val source = android.graphics.ImageDecoder.createSource(requireContext().contentResolver, uri)
+                android.graphics.ImageDecoder.decodeBitmap(source) { decoder, _, _ ->
+                    decoder.isMutableRequired = true
+                }
+            } else {
+                @Suppress("DEPRECATION")
+                android.provider.MediaStore.Images.Media.getBitmap(requireContext().contentResolver, uri)
+            }
+
+            // Scale bitmap if too large
+            val scaledBitmap = if (bitmap.width > 500 || bitmap.height > 500) {
+                val scale = 500f / kotlin.math.max(bitmap.width, bitmap.height)
+                Bitmap.createScaledBitmap(bitmap, (bitmap.width * scale).toInt(), (bitmap.height * scale).toInt(), true)
+            } else {
+                bitmap
+            }
+
+            // Add image at center
+            val x = binding.annotationView.width / 2f - scaledBitmap.width / 2f
+            val y = binding.annotationView.height / 2f - scaledBitmap.height / 2f
+
+            // Add as an image annotation
+            binding.annotationView.addImageAnnotation(scaledBitmap, x, y)
+            Toast.makeText(context, "Image inserted", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Toast.makeText(context, "Failed to load image", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun setupAnnotationView() {

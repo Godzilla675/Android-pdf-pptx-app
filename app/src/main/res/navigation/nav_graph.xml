@@ -92,7 +92,14 @@
         android:id="@+id/settingsFragment"
         android:name="com.officesuite.app.ui.settings.SettingsFragment"
         android:label="@string/settings"
-        tools:layout="@layout/fragment_settings" />
+        tools:layout="@layout/fragment_settings">
+        <action
+            android:id="@+id/action_settingsFragment_to_platformFeaturesFragment"
+            app:destination="@id/platformFeaturesFragment" />
+        <action
+            android:id="@+id/action_settingsFragment_to_developerSettingsFragment"
+            app:destination="@id/developerSettingsFragment" />
+    </fragment>
 
     <!-- Favorites Fragment -->
     <fragment

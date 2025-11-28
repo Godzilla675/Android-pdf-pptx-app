@@ -49,8 +49,7 @@ class SettingsFragment : Fragment() {
     private fun setupToolbar() {
         binding.toolbar.apply {
             setNavigationOnClickListener {
-                @Suppress("DEPRECATION")
-                requireActivity().onBackPressed()
+                requireActivity().onBackPressedDispatcher.onBackPressed()
             }
             title = getString(R.string.settings)
         }
@@ -178,10 +177,12 @@ class SettingsFragment : Fragment() {
         
         // Platform Features navigation
         binding.cardPlatformFeatures.setOnClickListener {
-            findNavController().navigate(R.id.platformFeaturesFragment)
+            findNavController().navigate(R.id.action_settingsFragment_to_platformFeaturesFragment)
+        }
+
         // Developer settings
         binding.btnDeveloperSettings.setOnClickListener {
-            findNavController().navigate(R.id.developerSettingsFragment)
+            findNavController().navigate(R.id.action_settingsFragment_to_developerSettingsFragment)
         }
     }
 

@@ -38,7 +38,18 @@ class ScannerTileService : TileService() {
         }
         
         // Collapse the quick settings panel and start activity
-        startActivityAndCollapse(intent)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+             val pendingIntent = android.app.PendingIntent.getActivity(
+                this,
+                0,
+                intent,
+                android.app.PendingIntent.FLAG_IMMUTABLE
+             )
+             startActivityAndCollapse(pendingIntent)
+        } else {
+             @Suppress("DEPRECATION")
+             startActivityAndCollapse(intent)
+        }
     }
     
     private fun updateTile() {

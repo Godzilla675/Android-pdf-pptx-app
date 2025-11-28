@@ -770,7 +770,6 @@
     <string name="compact_toolbar">Use Compact Toolbar</string>
     <string name="enable_multi_window">Enable Multi-Window</string>
     <string name="enable_drag_drop">Enable Drag &amp; Drop</string>
-    <string name="keyboard_shortcuts">Keyboard Shortcuts</string>
     <string name="platform_info">Platform Info</string>
     <!-- Technical Improvements Phase 2 -->
     <!-- Command Palette -->
@@ -807,7 +806,6 @@
     <string name="cache_cleared">Cache cleared</string>
     
     <!-- Custom Shortcuts -->
-    <string name="custom_shortcuts">Custom Shortcuts</string>
     <string name="keyboard_shortcuts">Keyboard Shortcuts</string>
     <string name="edit_shortcut">Edit Shortcut</string>
     <string name="reset_shortcut">Reset to Default</string>

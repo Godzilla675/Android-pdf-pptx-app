@@ -87,6 +87,16 @@ class DocumentConverter(private val context: Context) {
         return File(outputDir, "$baseName.${targetFormat.extension}")
     }
 
+    private fun renderPdfPageToBitmap(renderer: PdfRenderer, pageIndex: Int): Bitmap {
+        val page = renderer.openPage(pageIndex)
+        val bitmap = Bitmap.createBitmap(page.width, page.height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        canvas.drawColor(Color.WHITE)
+        page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+        page.close()
+        return bitmap
+    }
+
     private fun convertPdfToDocx(inputFile: File, outputFile: File) {
         val document = XWPFDocument()
         
@@ -95,19 +105,13 @@ class DocumentConverter(private val context: Context) {
         
         try {
             for (i in 0 until renderer.pageCount) {
-                val page = renderer.openPage(i)
-                
                 // Add page content as paragraph (simplified - real implementation would extract text)
                 val paragraph = document.createParagraph()
                 val run = paragraph.createRun()
                 run.setText("Page ${i + 1}")
                 run.addBreak()
                 
-                // Create bitmap from PDF page
-                val bitmap = Bitmap.createBitmap(page.width, page.height, Bitmap.Config.ARGB_8888)
-                val canvas = Canvas(bitmap)
-                canvas.drawColor(Color.WHITE)
-                page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                val bitmap = renderPdfPageToBitmap(renderer, i)
                 
                 // Save bitmap as image and add to document
                 val imageFile = FileUtils.createTempFile(context, "page_$i", ".png")
@@ -121,12 +125,11 @@ class DocumentConverter(private val context: Context) {
                         imageStream,
                         XWPFDocument.PICTURE_TYPE_PNG,
                         imageFile.name,
-                        page.width * 9525,
-                        page.height * 9525
+                        bitmap.width * 9525,
+                        bitmap.height * 9525
                     )
                 }
                 
-                page.close()
                 bitmap.recycle()
                 imageFile.delete()
             }
@@ -151,15 +154,8 @@ class DocumentConverter(private val context: Context) {
             val layout = slideShow.slideMasters[0].slideLayouts[0]
             
             for (i in 0 until renderer.pageCount) {
-                val page = renderer.openPage(i)
-                
                 val slide = slideShow.createSlide(layout)
-                
-                // Create bitmap from PDF page
-                val bitmap = Bitmap.createBitmap(page.width, page.height, Bitmap.Config.ARGB_8888)
-                val canvas = Canvas(bitmap)
-                canvas.drawColor(Color.WHITE)
-                page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                val bitmap = renderPdfPageToBitmap(renderer, i)
                 
                 // Save bitmap as image
                 val imageFile = FileUtils.createTempFile(context, "slide_$i", ".png")
@@ -173,7 +169,6 @@ class DocumentConverter(private val context: Context) {
                     slide.createPicture(pictureData)
                 }
                 
-                page.close()
                 bitmap.recycle()
                 imageFile.delete()
             }
@@ -196,9 +191,6 @@ class DocumentConverter(private val context: Context) {
         val xwpfDocument = XWPFDocument(FileInputStream(inputFile))
         
         try {
-            // Convert DOCX to HTML first
-            val htmlContent = convertDocxToHtml(xwpfDocument)
-            
             // Use iText to create PDF from HTML content
             val pdfWriter = PdfWriter(outputFile)
             val pdfDoc = ITextPdfDocument(pdfWriter)
@@ -319,50 +311,6 @@ class DocumentConverter(private val context: Context) {
         }
     }
     
-    /**
-     * Helper method to convert DOCX content to HTML string.
-     * Used for intermediate conversion and preview purposes.
-     */
-    private fun convertDocxToHtml(document: XWPFDocument): String {
-        val htmlBuilder = StringBuilder()
-        htmlBuilder.append("<!DOCTYPE html><html><head><meta charset=\"UTF-8\"></head><body>")
-        
-        for (paragraph in document.paragraphs) {
-            val text = paragraph.text
-            if (text.isNotEmpty()) {
-                htmlBuilder.append("<p>")
-                for (run in paragraph.runs) {
-                    var runHtml = escapeHtmlForConverter(run.text() ?: "")
-                    if (run.isBold) runHtml = "<b>$runHtml</b>"
-                    if (run.isItalic) runHtml = "<i>$runHtml</i>"
-                    htmlBuilder.append(runHtml)
-                }
-                htmlBuilder.append("</p>")
-            }
-        }
-        
-        for (table in document.tables) {
-            htmlBuilder.append("<table border=\"1\">")
-            for (row in table.rows) {
-                htmlBuilder.append("<tr>")
-                for (cell in row.tableCells) {
-                    htmlBuilder.append("<td>${escapeHtmlForConverter(cell.text)}</td>")
-                }
-                htmlBuilder.append("</tr>")
-            }
-            htmlBuilder.append("</table>")
-        }
-        
-        htmlBuilder.append("</body></html>")
-        return htmlBuilder.toString()
-    }
-    
-    private fun escapeHtmlForConverter(text: String): String {
-        return text
-            .replace("&", "&amp;")
-            .replace("<", "&lt;")
-            .replace(">", "&gt;")
-    }
 
     private fun convertPptxToPdf(inputFile: File, outputFile: File) {
         val slideShow = XMLSlideShow(FileInputStream(inputFile))
@@ -430,6 +378,7 @@ class DocumentConverter(private val context: Context) {
         val pdfDocument = PdfDocument()
         
         try {
+            // Title is currently unused but kept for future implementation of PDF metadata
             val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create()
             var page = pdfDocument.startPage(pageInfo)
             var canvas = page.canvas
