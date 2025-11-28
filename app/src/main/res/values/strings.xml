@@ -605,4 +605,48 @@
     <string name="remove_shadows">Remove Shadows</string>
     <string name="multi_page">Multi-page Mode</string>
     <string name="ocr_after_scan">Run OCR after scan</string>
+
+    <!-- Phase 2: Social & Sharing Features -->
+    <string name="reactions">Reactions</string>
+    <string name="add_reaction">Add Reaction</string>
+    <string name="remove_reaction">Remove Reaction</string>
+    <string name="reaction_added">Reaction added</string>
+    <string name="reaction_removed">Reaction removed</string>
+    <string name="like">Like</string>
+    <string name="love">Love</string>
+    <string name="celebrate">Celebrate</string>
+    <string name="insightful">Insightful</string>
+    <string name="helpful">Helpful</string>
+    <string name="star">Star</string>
+    <string name="total_reactions">%1$d reactions</string>
+
+    <!-- Comment Threading -->
+    <string name="comment_thread">Comment Thread</string>
+    <string name="reply_to_comment">Reply</string>
+    <string name="view_replies">View Replies (%1$d)</string>
+    <string name="hide_replies">Hide Replies</string>
+    <string name="thread_resolved">Thread Resolved</string>
+    <string name="reopen_thread">Reopen Thread</string>
+    <string name="no_replies">No replies yet</string>
+    <string name="reply_added">Reply added</string>
+    <string name="reply_count">%1$d replies</string>
+
+    <!-- @Mentions -->
+    <string name="mentions">Mentions</string>
+    <string name="mention_user">@Mention a user</string>
+    <string name="you_were_mentioned">You were mentioned</string>
+    <string name="mentioned_by">%1$s mentioned you</string>
+    <string name="unread_mentions">%1$d unread mentions</string>
+    <string name="mark_as_read">Mark as Read</string>
+    <string name="mark_all_as_read">Mark All as Read</string>
+    <string name="go_to_comment">Go to Comment</string>
+    <string name="no_mentions">No mentions</string>
+
+    <!-- Activity Feed -->
+    <string name="activity_feed">Activity Feed</string>
+    <string name="recent_activity">Recent Activity</string>
+    <string name="no_activity">No recent activity</string>
+    <string name="someone_commented">%1$s commented</string>
+    <string name="someone_reacted">%1$s reacted</string>
+    <string name="someone_replied">%1$s replied</string>
 </resources>
