@@ -41,6 +41,17 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
+      - name: Extract package info from APK
+        id: apk-info
+        run: |
+          APK_PATH="app/build/outputs/apk/debug/app-debug.apk"
+          PACKAGE_NAME=$(aapt dump badging "$APK_PATH" | grep "package: name=" | sed "s/.*name='\([^']*\)'.*/\1/")
+          LAUNCHABLE_ACTIVITY=$(aapt dump badging "$APK_PATH" | grep "launchable-activity" | sed "s/.*name='\([^']*\)'.*/\1/")
+          echo "PACKAGE_NAME=$PACKAGE_NAME" >> $GITHUB_ENV
+          echo "LAUNCHABLE_ACTIVITY=$LAUNCHABLE_ACTIVITY" >> $GITHUB_ENV
+          echo "Package: $PACKAGE_NAME"
+          echo "Launchable Activity: $LAUNCHABLE_ACTIVITY"
+
       - name: Run emulator test
         uses: reactivecircus/android-emulator-runner@v2
         id: emulator-test
@@ -54,6 +65,10 @@ jobs:
           script: |
             echo "=== Emulator Ready ===" 
             echo ""
+            echo "=== APK Package Info ==="
+            echo "Package: $PACKAGE_NAME"
+            echo "Activity: $LAUNCHABLE_ACTIVITY"
+            echo ""
             echo "=== Installing APK ==="
             adb install -r app/build/outputs/apk/debug/app-debug.apk
             INSTALL_RESULT=$?
@@ -65,7 +80,7 @@ jobs:
               
               echo ""
               echo "=== Launching App ==="
-              adb shell am start -n com.officesuite.app/.MainActivity
+              adb shell am start -n "$PACKAGE_NAME/$LAUNCHABLE_ACTIVITY"
               LAUNCH_RESULT=$?
               echo "Launch exit code: $LAUNCH_RESULT"
               
@@ -73,7 +88,7 @@ jobs:
               
               echo ""
               echo "=== Checking if app is running ==="
-              adb shell pidof com.officesuite.app
+              adb shell pidof "$PACKAGE_NAME"
               APP_PID=$?
               
               if [ $APP_PID -eq 0 ]; then
@@ -93,7 +108,7 @@ jobs:
             
             echo ""
             echo "=== Package Info ==="
-            adb shell pm list packages | grep officesuite || echo "Package not found in installed packages"
+            adb shell pm list packages | grep "^package:$PACKAGE_NAME$" || echo "Package not found in installed packages"
             
             echo ""
             echo "=== APK Analysis ==="
