@@ -16,6 +16,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.officesuite.app.MainActivity
 import com.officesuite.app.R
 import com.officesuite.app.databinding.FragmentPptxViewerBinding
+import com.officesuite.app.data.model.ConversionOptions
+import com.officesuite.app.data.model.DocumentType
+import com.officesuite.app.data.repository.DocumentConverter
 import com.officesuite.app.utils.ErrorHandler
 import com.officesuite.app.utils.FileUtils
 import com.officesuite.app.utils.Result
@@ -247,8 +250,38 @@ class PptxViewerFragment : Fragment() {
     }
 
     private fun convertToPdf() {
+        val file = cachedFile
+        if (fileUri == null || file == null) {
+            Toast.makeText(context, "No file loaded", Toast.LENGTH_SHORT).show()
+            return
+        }
         Toast.makeText(context, "Converting to PDF...", Toast.LENGTH_SHORT).show()
-        // Navigate to converter or perform conversion
+        
+        lifecycleScope.launch {
+            val result = Result.runCatchingSuspend {
+                val documentConverter = DocumentConverter(requireContext())
+                val options = ConversionOptions(
+                    sourceFormat = DocumentType.PPTX,
+                    targetFormat = DocumentType.PDF
+                )
+                documentConverter.convert(file, options)
+            }
+            
+            result.onSuccess { conversionResult ->
+                if (conversionResult.success && conversionResult.outputPath != null) {
+                    Toast.makeText(context, "PDF saved: ${File(conversionResult.outputPath).name}", Toast.LENGTH_LONG).show()
+                    ShareUtils.shareFile(
+                        requireContext(),
+                        File(conversionResult.outputPath),
+                        "application/pdf"
+                    )
+                } else {
+                    Toast.makeText(context, "Conversion failed: ${conversionResult.errorMessage}", Toast.LENGTH_LONG).show()
+                }
+            }.onError { error ->
+                ErrorHandler.showErrorToast(requireContext(), error.exception)
+            }
+        }
     }
 
     private fun startSlideshow() {

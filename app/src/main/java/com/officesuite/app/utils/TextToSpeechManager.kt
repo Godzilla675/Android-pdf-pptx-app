@@ -38,6 +38,7 @@ class TextToSpeechManager(
                     onCompletionListener?.invoke()
                 }
 
+                @Deprecated(message = "This method was deprecated in API level 21.")
                 override fun onError(utteranceId: String?) {
                     // Error occurred
                 }

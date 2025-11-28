@@ -26,7 +26,6 @@ import androidx.core.view.WindowInsetsControllerCompat
 class FocusModeManager(private val context: Context) {
 
     private var isFocusModeActive = false
-    private var originalSystemUiVisibility: Int = 0
     private var hiddenViews = mutableListOf<Pair<View, Float>>()
 
     /**
@@ -64,11 +63,8 @@ class FocusModeManager(private val context: Context) {
         
         isFocusModeActive = true
 
-        // Store original state
-        val decorView = activity.window.decorView
-        originalSystemUiVisibility = decorView.systemUiVisibility
-
         // Enter immersive mode
+        val decorView = activity.window.decorView
         val windowInsetsController = WindowCompat.getInsetsController(activity.window, decorView)
         
         if (config.hideStatusBar) {
@@ -172,6 +168,7 @@ class FocusModeManager(private val context: Context) {
     /**
      * Create focus mode overlay for dimming background
      */
+    @Suppress("UNUSED_PARAMETER")
     fun createDimOverlay(parent: ViewGroup, dimLevel: Float = 0.15f): View {
         return View(context).apply {
             layoutParams = ViewGroup.LayoutParams(
