@@ -66,8 +66,11 @@
     <color name="primary_dark_theme">#9ECAFF</color>
     <color name="on_primary_dark">#003258</color>
     
+    <!-- Outline Colors -->
+    <color name="outline">#73777F</color>
+    <color name="outline_variant">#C3C6CF</color>
+    
     <!-- Status colors - Material 3 -->
-    <color name="colorPrimary">#0061A4</color>
     <color name="error">#BA1A1A</color>
     <color name="error_container">#FFDAD6</color>
     <color name="on_error">#FFFFFF</color>
@@ -75,9 +78,8 @@
     <color name="warning">#FFB74D</color>
     <color name="success">#4CAF50</color>
     
-    <!-- Outline Colors -->
-    <color name="outline">#73777F</color>
-    <color name="outline_variant">#C3C6CF</color>
+    <!-- Legacy alias for code compatibility -->
+    <color name="colorPrimary">@color/primary</color>
     
     <!-- Scrim -->
     <color name="scrim">#000000</color>
