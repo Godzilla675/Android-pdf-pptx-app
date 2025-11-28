@@ -45,8 +45,15 @@ jobs:
         id: apk-info
         run: |
           APK_PATH="app/build/outputs/apk/debug/app-debug.apk"
-          PACKAGE_NAME=$(aapt dump badging "$APK_PATH" | grep "package: name=" | sed "s/.*name='\([^']*\)'.*/\1/")
-          LAUNCHABLE_ACTIVITY=$(aapt dump badging "$APK_PATH" | grep "launchable-activity" | sed "s/.*name='\([^']*\)'.*/\1/")
+          # Find aapt in Android SDK build-tools
+          AAPT_CMD=$(find $ANDROID_SDK_ROOT/build-tools -name "aapt" | head -1)
+          if [ -z "$AAPT_CMD" ]; then
+            echo "Error: aapt not found in Android SDK"
+            exit 1
+          fi
+          echo "Using aapt: $AAPT_CMD"
+          PACKAGE_NAME=$("$AAPT_CMD" dump badging "$APK_PATH" | grep "^package:" | sed "s/package: name='\([^']*\)'.*/\1/")
+          LAUNCHABLE_ACTIVITY=$("$AAPT_CMD" dump badging "$APK_PATH" | grep "launchable-activity" | sed "s/.*name='\([^']*\)'.*/\1/")
           echo "PACKAGE_NAME=$PACKAGE_NAME" >> $GITHUB_ENV
           echo "LAUNCHABLE_ACTIVITY=$LAUNCHABLE_ACTIVITY" >> $GITHUB_ENV
           echo "Package: $PACKAGE_NAME"
@@ -108,11 +115,17 @@ jobs:
             
             echo ""
             echo "=== Package Info ==="
-            adb shell pm list packages | grep "^package:$PACKAGE_NAME$" || echo "Package not found in installed packages"
+            adb shell pm list packages | grep "package:$PACKAGE_NAME" || echo "Package not found in installed packages"
             
             echo ""
             echo "=== APK Analysis ==="
-            aapt dump badging app/build/outputs/apk/debug/app-debug.apk | head -20 || echo "Could not analyze APK"
+            # Find aapt in Android SDK
+            AAPT_CMD=$(find $ANDROID_SDK_ROOT/build-tools -name "aapt" | head -1)
+            if [ -n "$AAPT_CMD" ]; then
+              "$AAPT_CMD" dump badging app/build/outputs/apk/debug/app-debug.apk | head -20
+            else
+              echo "Could not analyze APK - aapt not found"
+            fi
 
       - name: Comment test results on PR
         if: always()

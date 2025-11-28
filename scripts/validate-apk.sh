@@ -31,12 +31,27 @@ elif [ -f "$APK_RELEASE" ]; then
 else
     echo -e "${YELLOW}No APK found. Building debug APK...${NC}"
     cd "$PROJECT_ROOT"
-    ./gradlew assembleDebug
+    if ! ./gradlew assembleDebug; then
+        echo -e "${RED}✗ Failed to build APK${NC}"
+        exit 1
+    fi
     APK_PATH="$APK_DEBUG"
+    
+    # Verify the APK was actually created
+    if [ ! -f "$APK_PATH" ]; then
+        echo -e "${RED}✗ APK was not created after build${NC}"
+        exit 1
+    fi
 fi
 
 echo ""
 echo "APK Path: $APK_PATH"
+
+# Verify APK file exists
+if [ ! -f "$APK_PATH" ]; then
+    echo -e "${RED}✗ APK file not found: $APK_PATH${NC}"
+    exit 1
+fi
 echo ""
 
 # Check APK file type
@@ -104,8 +119,15 @@ if [ -n "$AAPT_CMD" ] && [ -f "$AAPT_CMD" ]; then
     echo "Using aapt: $AAPT_CMD"
     echo ""
     
-    # Extract package info
+    # Extract package info and check for errors
     PACKAGE_INFO=$("$AAPT_CMD" dump badging "$APK_PATH" 2>&1)
+    AAPT_EXIT_CODE=$?
+    
+    if [ $AAPT_EXIT_CODE -ne 0 ]; then
+        echo -e "${RED}✗ aapt failed to analyze APK${NC}"
+        echo "$PACKAGE_INFO"
+        exit 1
+    fi
     
     PACKAGE_NAME=$(echo "$PACKAGE_INFO" | grep "^package:" | sed "s/package: name='\([^']*\)'.*/\1/")
     VERSION_NAME=$(echo "$PACKAGE_INFO" | grep "^package:" | sed "s/.*versionName='\([^']*\)'.*/\1/")
@@ -137,10 +159,17 @@ if [ -n "$AAPT_CMD" ] && [ -f "$AAPT_CMD" ]; then
         echo -e "${GREEN}✓ Launchable activity found${NC}"
     fi
     
-    if [ -n "$MIN_SDK" ] && [ "$MIN_SDK" -lt 21 ]; then
-        echo -e "${YELLOW}⚠ Min SDK ($MIN_SDK) is very low, may have compatibility issues${NC}"
+    # Validate MIN_SDK is numeric before comparison
+    if [ -n "$MIN_SDK" ] && [[ "$MIN_SDK" =~ ^[0-9]+$ ]]; then
+        if [ "$MIN_SDK" -lt 21 ]; then
+            echo -e "${YELLOW}⚠ Min SDK ($MIN_SDK) is very low, may have compatibility issues${NC}"
+        else
+            echo -e "${GREEN}✓ Min SDK version is reasonable ($MIN_SDK)${NC}"
+        fi
+    elif [ -n "$MIN_SDK" ]; then
+        echo -e "${YELLOW}⚠ Could not parse Min SDK version: $MIN_SDK${NC}"
     else
-        echo -e "${GREEN}✓ Min SDK version is reasonable ($MIN_SDK)${NC}"
+        echo -e "${YELLOW}⚠ Min SDK not specified${NC}"
     fi
 else
     echo -e "${YELLOW}aapt not found, skipping detailed APK analysis${NC}"
