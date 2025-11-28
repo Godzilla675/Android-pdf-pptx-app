@@ -205,5 +205,11 @@
         android:name="com.officesuite.app.ui.platform.PlatformFeaturesFragment"
         android:label="@string/platform_features"
         tools:layout="@layout/fragment_platform_features" />
+    <!-- Developer Settings Fragment (Technical Improvements Phase 2) -->
+    <fragment
+        android:id="@+id/developerSettingsFragment"
+        android:name="com.officesuite.app.ui.developer.DeveloperSettingsFragment"
+        android:label="@string/developer_settings"
+        tools:layout="@layout/fragment_developer_settings" />
 
 </navigation>

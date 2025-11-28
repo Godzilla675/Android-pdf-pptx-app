@@ -705,6 +705,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/platform_features"
+            <!-- Developer Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/developer_options"
                 android:textColor="@color/primary"
                 android:textSize="14sp"
                 android:textStyle="bold"
@@ -713,6 +718,7 @@
             <!-- Platform Features -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardPlatformFeatures"
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
@@ -720,6 +726,7 @@
                 app:cardElevation="2dp"
                 android:clickable="true"
                 android:focusable="true">
+                app:cardElevation="2dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -738,6 +745,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/platform_features"
+                            android:text="@string/developer_settings"
                             android:textColor="@color/text_primary"
                             android:textSize="16sp" />
 
@@ -745,6 +753,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Digital Wellbeing, Voice Commands, Quick Settings"
+                            android:text="Debug mode, beta features, performance"
                             android:textColor="@color/text_secondary"
                             android:textSize="12sp" />
 
@@ -755,6 +764,12 @@
                         android:layout_height="24dp"
                         android:src="@drawable/ic_arrow"
                         android:contentDescription="Navigate" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnDeveloperSettings"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/open" />
 
                 </LinearLayout>
 
